@@ -19,11 +19,7 @@
   --color-border: #89938b;
 
   /* Typography */
-  --font-mono:
-    "IBM Plex Mono",
-    "SFMono-Regular",
-    Consolas,
-    monospace;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 
   /* Geometry */
   --border-width: 1px;

@@ -1,0 +1,32 @@
+<div class="counter" data-counter>
+  <button type="button" data-decrement>
+    -
+  </button>
+  <span data-value>0</span>
+  <button type="button" data-increment>
+    +
+  </button>
+</div>
+
+<script>
+  const root = document.querySelector("[data-counter]");
+  const value = root?.querySelector("[data-value]");
+  const increment = root?.querySelector("[data-increment]");
+  const decrement = root?.querySelector("[data-decrement]");
+
+  let count = 0;
+
+  const render = () => {
+    if (value) value.textContent = String(count);
+  };
+
+  increment?.addEventListener("click", () => {
+    count += 1;
+    render();
+  });
+
+  decrement?.addEventListener("click", () => {
+    count -= 1;
+    render();
+  });
+</script>

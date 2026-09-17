@@ -17,10 +17,7 @@ a {
 }
 
 .shell {
-  width: min(
-    var(--content-width),
-    calc(100% - 2rem)
-  );
+  width: min(var(--content-width), calc(100% - 2rem));
 
   margin-inline: auto;
 }
