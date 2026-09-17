@@ -107,3 +107,7 @@ to document required variables.
 Top-level pages may be indexed.
 
 Individual project and post pages use `noindex` and are excluded from the sitemap.
+
+## Development workflow
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for branching, pull requests, CI, and deployment workflow.
