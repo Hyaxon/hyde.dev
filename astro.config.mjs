@@ -14,5 +14,16 @@ export default defineConfig({
 
   session: false,
 
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+
+    sitemap({
+      filter: (page) => {
+        const url = new URL(page);
+        const segments = url.pathname.split("/").filter(Boolean);
+
+        return segments.length <= 1;
+      },
+    }),
+  ],
 });

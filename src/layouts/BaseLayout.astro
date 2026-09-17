@@ -4,10 +4,16 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  index?: boolean;
 }
 
-const { title = "Hyde", description = "Personal developer portfolio." } =
-  Astro.props;
+const {
+  title = "Hyde",
+  description = "Personal developer portfolio.",
+  index = true,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -17,6 +23,11 @@ const { title = "Hyde", description = "Personal developer portfolio." } =
     <meta name="viewport" content="width=device-width" />
 
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    {!index && <meta name="robots" content="noindex, follow" />}
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     <title>{title}</title>
   </head>
