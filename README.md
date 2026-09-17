@@ -1,43 +1,109 @@
-# Astro Starter Kit: Minimal
+# hyde.dev
 
-```sh
-npm create astro@latest -- --template minimal
+Personal developer portfolio and content site.
+
+## Stack
+
+- Astro
+- TypeScript
+- MDX
+- Cloudflare Workers
+- Pagefind
+- Vanilla client-side TypeScript
+- React only where required
+
+## Development
+
+```bash
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Checks
 
-## 🚀 Project Structure
+```bash
+npm run format
+npm run check
+npm run build
+```
 
-Inside of your Astro project, you'll see the following folders and files:
+## Preview
+
+```bash
+npm run preview
+```
+
+## Content
+
+Posts:
 
 ```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+src/content/posts/
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Projects:
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```text
+src/content/projects/
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
+Markdown and MDX are validated through Astro Content Collections.
 
-## 🧞 Commands
+## Architecture
 
-All commands are run from the root of the project, from a terminal:
+```text
+src/
+├── components/       reusable UI
+├── content/          Markdown/MDX
+├── layouts/          page/content layouts
+├── lib/
+│   ├── client/       browser-only TypeScript
+│   ├── server/       server/API logic
+│   └── shared/       environment-agnostic code
+├── pages/
+│   └── api/          thin HTTP endpoints
+└── styles/
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+Normal pages are statically generated.
 
-## 👀 Want to learn more?
+Dynamic API routes opt out of prerendering with:
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+```ts
+export const prerender = false;
+```
+
+## Deployment
+
+- GitHub repository
+- `main` is production
+- Cloudflare builds and deploys `main` to `hyde.dev`
+- Non-production branches receive preview deployments
+
+## Dependency policy
+
+This repository uses an npm minimum release age to reduce exposure to fresh supply-chain compromises.
+
+See `.npmrc`.
+
+## Secrets
+
+Local server-side secrets belong in:
+
+```text
+.dev.vars
+```
+
+Use:
+
+```text
+.dev.vars.example
+```
+
+to document required variables.
+
+## Indexing
+
+Top-level pages may be indexed.
+
+Individual project and post pages use `noindex` and are excluded from the sitemap.
