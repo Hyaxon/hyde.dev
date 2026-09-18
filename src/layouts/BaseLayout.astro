@@ -8,7 +8,7 @@ interface Props {
 }
 
 const {
-  title = "Hyde",
+  title = "Hyde.dev",
   description = "Personal developer portfolio.",
   index = true,
 } = Astro.props;
@@ -28,6 +28,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     {!index && <meta name="robots" content="noindex, follow" />}
 
     <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <title>{title}</title>
   </head>
