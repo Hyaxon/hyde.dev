@@ -1,9 +1,53 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ItemBox from "../components/ui/ItemBox.astro";
+import Card from "../components/ui/Card.astro";
 ---
 
 <BaseLayout>
-  <main class="shell">
-    <h1>Hyde.dev</h1>
+  <main class="shell home-grid">
+    <section class="about">
+      <ItemBox title="About">
+        <p>
+          Whatever goes inside the About widget.
+        </p>
+      </ItemBox>
+    </section>
+
+    <section class="projects">
+      <ItemBox title="Projects">
+        <Card>
+          Hello!
+        </Card>
+      </ItemBox>
+    </section>
+
+    <section class="posts">
+      <ItemBox title="Posts">
+        <p>Come Back Later!</p>
+      </ItemBox>
+    </section>
   </main>
 </BaseLayout>
+
+<style>
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .about {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 48rem) {
+    .home-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .about {
+      grid-column: auto;
+    }
+  }
+</style>

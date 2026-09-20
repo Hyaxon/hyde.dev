@@ -1,0 +1,62 @@
+---
+interface Props {
+  title?: string;
+  class?: string;
+}
+
+const {
+  title,
+  class: className,
+} = Astro.props;
+---
+
+<section
+  class:list={['item-box', className]}
+  aria-label={title}
+>
+  {title && (
+    <h2 class="item-box__title">
+      {title}
+    </h2>
+  )}
+
+  <div class="item-box__content">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .item-box {
+    position: relative;
+
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-panel);
+  }
+
+  .item-box__title {
+    position: absolute;
+
+    top: 0;
+    left: var(--space-6);
+
+    margin: 0;
+    padding-inline: var(--space-3);
+
+    background: var(--color-bg);
+
+    font: inherit;
+    font-size: 1.5rem;
+    font-weight: normal;
+    line-height: 1;
+
+    transform: translateY(-50%);
+  }
+
+  .item-box__content {
+    padding: var(--space-6);
+  }
+
+  .item-box:has(.item-box__title) .item-box__content {
+    padding-top: var(--space-8);
+  }
+</style>
