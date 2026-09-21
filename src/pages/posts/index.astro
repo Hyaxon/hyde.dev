@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ItemList from "../../components/ui/ItemList.astro";
+import PostCard from "../../components/ui/PostCard.astro";
+import { getPosts } from "../../lib/posts/selectors";
+
+const posts = await getPosts();
+---
+
+<BaseLayout title="Posts">
+  <main class="shell">
+    <ItemList title="Posts">
+      {posts.length ? (
+        posts.map((post) => (
+          <PostCard
+            title={post.data.title}
+            href={`/posts/${post.id}`}
+            date={post.data.publishedAt}
+          />
+        ))
+      ) : (
+        <p>No posts yet.</p>
+      )}
+    </ItemList>
+  </main>
+</BaseLayout>

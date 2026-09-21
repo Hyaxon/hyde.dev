@@ -6,9 +6,14 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
 
     steps:
       - name: Checkout
@@ -26,8 +31,8 @@ jobs:
       - name: Format check
         run: npm run format:check
 
-      - name: Type and Astro checks
-        run: npm run check
+      - name: Regression tests
+        run: npm test
 
       - name: Build
         run: npm run build

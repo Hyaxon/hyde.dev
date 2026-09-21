@@ -1,9 +1,213 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+import ItemBox from "../components/ui/ItemBox.astro";
+import ItemList from "../components/ui/ItemList.astro";
+import PostCard from "../components/ui/PostCard.astro";
+import { getPosts } from "../lib/posts/selectors";
+import ProjectCard from "../components/ui/ProjectCard.astro";
+
+import { getHomepageProjects } from "../lib/projects/selectors";
+import HeroAscii from "../components/ui/HeroAscii.astro";
+
+const homepagePosts = (await getPosts()).slice(0, 5);
+
+const homepageProjects = await getHomepageProjects(5);
 ---
 
 <BaseLayout>
-  <main class="shell">
-    <h1>Hyde.dev</h1>
+  <main class="shell home">
+    <section class="hero">
+      <ItemBox>
+        <HeroAscii />
+      </ItemBox>
+    </section>
+
+    <section class="about">
+      <ItemBox title="About">
+        <p>Whatever goes inside the About widget.</p>
+      </ItemBox>
+    </section>
+
+    <div class="dashboard">
+      <div class="dashboard-column">
+        <section class="projects">
+          <ItemList title="Projects" viewAllHref="/projects">
+            {homepageProjects.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </ItemList>
+        </section>
+
+        <section class="stats">
+          <ItemBox>
+            <p>Site Stats</p>
+            <p>Uptime</p>
+          </ItemBox>
+        </section>
+
+        <section class="game">
+          <ItemBox>
+            <p>Play a game</p>
+          </ItemBox>
+        </section>
+
+        <section class="resume">
+          <ItemBox>
+            <p>Get my resume:</p>
+          </ItemBox>
+        </section>
+
+        <section class="email">
+          <ItemBox>
+            <p>email me:</p>
+          </ItemBox>
+        </section>
+
+        <section class="links">
+          <ItemBox>
+            <p>My Links!</p>
+          </ItemBox>
+        </section>
+      </div>
+
+      <div class="dashboard-column">
+        <section class="posts">
+          <ItemList title="Posts" viewAllHref="/posts">
+            {homepagePosts.length ? (
+              homepagePosts.map((post) => (
+                <PostCard
+                  title={post.data.title}
+                  href={`/posts/${post.id}`}
+                  date={post.data.publishedAt}
+                />
+              ))
+            ) : (
+              <p>No posts yet.</p>
+            )}
+          </ItemList>
+        </section>
+
+        <section class="contributions">
+          <ItemBox>
+            <p>GH Stats</p>
+          </ItemBox>
+        </section>
+
+        <section class="project-activity">
+          <ItemBox>
+            <p>Project Activity</p>
+          </ItemBox>
+        </section>
+
+        <section class="weather">
+          <ItemBox>
+            <p>Weather</p>
+          </ItemBox>
+        </section>
+
+        <section class="watch-activity">
+          <ItemBox>
+            <p>Last watched:</p>
+          </ItemBox>
+        </section>
+
+        <section class="fun">
+          <ItemBox>
+            <p>Fun!</p>
+          </ItemBox>
+        </section>
+
+        <section class="site-settings">
+          <ItemBox>
+            <p>Site Settings</p>
+          </ItemBox>
+        </section>
+      </div>
+    </div>
   </main>
 </BaseLayout>
+
+<style>
+  .home {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .dashboard {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .dashboard-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    min-width: 0;
+  }
+
+  @media (max-width: 48rem) {
+    .dashboard {
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-column {
+      display: contents;
+    }
+
+    .projects {
+      order: 1;
+    }
+
+    .posts {
+      order: 2;
+    }
+
+    .contributions {
+      order: 3;
+    }
+
+    .project-activity {
+      order: 4;
+    }
+
+    .stats {
+      order: 5;
+    }
+
+    .weather {
+      order: 6;
+    }
+
+    .watch-activity {
+      order: 7;
+    }
+
+    .resume {
+      order: 8;
+    }
+
+    .email {
+      order: 9;
+    }
+
+    .game {
+      order: 10;
+    }
+
+    .fun {
+      order: 11;
+    }
+
+    .site-settings {
+      order: 12;
+    }
+
+    .links {
+      order: 13;
+    }
+  }
+</style>

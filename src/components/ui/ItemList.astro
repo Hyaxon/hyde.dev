@@ -1,0 +1,97 @@
+---
+import ItemBox from "./ItemBox.astro";
+
+interface Props {
+  title?: string;
+  viewAllHref?: string;
+  viewAllLabel?: string;
+  gap?: string;
+  class?: string;
+}
+
+const {
+  title,
+  viewAllHref,
+  viewAllLabel = "View All",
+  gap = "var(--space-3)",
+  class: className,
+} = Astro.props;
+---
+
+<ItemBox title={title} class={className}>
+  {viewAllHref && (
+    <a slot="action" class="view-all" href={viewAllHref}>
+      <span
+        class="view-all__chevron view-all__chevron--left"
+        aria-hidden="true"
+      >
+        &lt;
+      </span>
+
+      <span class="view-all__label">{viewAllLabel}</span>
+
+      <span
+        class="view-all__chevron view-all__chevron--right"
+        aria-hidden="true"
+      >
+        &gt;
+      </span>
+    </a>
+  )}
+
+  <div class="item-list" style={`--item-list-gap: ${gap};`}>
+    <slot />
+  </div>
+</ItemBox>
+
+<style>
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--item-list-gap);
+  }
+
+  .view-all {
+    position: relative;
+    display: block;
+    padding-inline: 1.75rem;
+
+    color: var(--color-text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+
+  .view-all:hover {
+    color: var(--color-text);
+  }
+
+  .view-all__label {
+    display: block;
+  }
+
+  .view-all__chevron {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .view-all__chevron--left {
+    left: 0.5rem;
+  }
+
+  .view-all__chevron--right {
+    right: 0.5rem;
+  }
+
+  .view-all:hover .view-all__chevron--left {
+    transform: translateX(-0.35rem);
+  }
+
+  .view-all:hover .view-all__chevron--right {
+    transform: translateX(0.35rem);
+  }
+</style>

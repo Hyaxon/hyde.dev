@@ -47,14 +47,14 @@ docs/update-readme
 Run the local development server with:
 
 ```bash
-npm run dev
+npm run dev -- --background
 ```
 
 Before pushing a branch, run:
 
 ```bash
 npm run format
-npm run check
+npm test
 npm run build
 ```
 
@@ -164,3 +164,6 @@ Document required variables in:
 ```
 
 Cloudflare production secrets should be configured through Cloudflare rather than committed to the repository.
+
+Build-time GitHub access uses `GITHUB_TOKEN` in `.env` or the build environment.
+Keep it separate from runtime Cloudflare secrets in `.dev.vars`.

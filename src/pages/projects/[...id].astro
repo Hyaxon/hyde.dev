@@ -1,20 +1,15 @@
 ---
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
+import { getProjects } from "../../lib/projects/selectors";
 import ContentLayout from "../../layouts/ContentLayout.astro";
+import ItemBox from "../../components/ui/ItemBox.astro";
+import Card from "../../components/ui/Card.astro";
 
 export async function getStaticPaths() {
-  const projects = await getCollection("projects");
-
-  return projects
-    .filter((project) => !project.data.draft)
-    .map((project) => ({
-      params: {
-        id: project.id,
-      },
-      props: {
-        project,
-      },
-    }));
+  return (await getProjects()).map((project) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
 }
 
 const { project } = Astro.props;
@@ -25,5 +20,23 @@ const { Content } = await render(project);
   title={project.data.title}
   description={project.data.description}
 >
-  <Content />
+  <Card href="/projects">
+    <p>&lt; Projects</p>
+  </Card>
+
+  <Card href="/">
+    <p>&lt; Home</p>
+  </Card>
+
+  <ItemBox>
+    <Content />
+  </ItemBox>
+
+  <Card href="/projects">
+    <p>&lt; Projects</p>
+  </Card>
+
+  <Card href="/">
+    <p>&lt; Home</p>
+  </Card>
 </ContentLayout>
