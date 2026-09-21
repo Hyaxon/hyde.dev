@@ -1,0 +1,31 @@
+---
+const pathname = Astro.url.pathname;
+
+const cleanPath = pathname.replace(/^\/|\/$/g, "");
+
+const filePath = cleanPath === "" ? "home.hy" : `${cleanPath}.hy`;
+---
+
+<div class="terminal-path shell" aria-label={`Current path: ${filePath}`}>
+  <span class="terminal-path__command">&gt;</span>
+  <span class="terminal-path__command"> cat </span>
+  <span class="terminal-path__value">{filePath}</span>
+</div>
+
+<style>
+  .terminal-path {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+
+    margin-bottom: var(--space-2);
+  }
+
+  .terminal-path__command {
+    color: var(--color-text-muted);
+  }
+
+  .terminal-path__value {
+    color: var(--color-text);
+  }
+</style>

@@ -6,13 +6,14 @@ import ItemList from "../components/ui/ItemList.astro";
 import PostCard from "../components/ui/PostCard.astro";
 import { getPosts } from "../lib/posts/selectors";
 import ProjectCard from "../components/ui/ProjectCard.astro";
+import TerminalPath from "../components/ui/TerminalPath.astro";
 
 import { getHomepageProjects } from "../lib/projects/selectors";
 import HeroAscii from "../components/ui/HeroAscii.astro";
 
 const homepagePosts = (await getPosts()).slice(0, 5);
 
-const homepageProjects = await getHomepageProjects(5);
+const homepageProjects = await getHomepageProjects(6);
 ---
 
 <BaseLayout>
@@ -25,7 +26,40 @@ const homepageProjects = await getHomepageProjects(5);
 
     <section class="about">
       <ItemBox title="About">
-        <p>Whatever goes inside the About widget.</p>
+        <div class="about__columns">
+          <div class="about__text">
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+              porttitor vulputate dolor, sed blandit enim tincidunt ac. Interdum
+              et malesuada fames ac ante ipsum primis in faucibus. Proin vel urna
+              at tortor molestie efficitur non vel purus.
+            </p>
+            <p>
+              Vivamus nulla ante, fermentum sit amet sem in, ornare condimentum
+              eros. Mauris quis mollis mi, eget facilisis lectus. Phasellus nisl
+              velit, commodo a sapien non, condimentum luctus sapien. Aliquam
+              lorem nulla, ultrices sed interdum quis, accumsan at dolor. Nulla
+              massa augue, porta id tortor sit amet, ultrices blandit odio. In
+              dapibus rutrum mauris sed mollis.
+            </p>
+          </div>
+          <div class="about__text">
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+              porttitor vulputate dolor, sed blandit enim tincidunt ac. Interdum
+              et malesuada fames ac ante ipsum primis in faucibus. Proin vel urna
+              at tortor molestie efficitur non vel purus.
+            </p>
+            <p>
+              Vivamus nulla ante, fermentum sit amet sem in, ornare condimentum
+              eros. Mauris quis mollis mi, eget facilisis lectus. Phasellus nisl
+              velit, commodo a sapien non, condimentum luctus sapien. Aliquam
+              lorem nulla, ultrices sed interdum quis, accumsan at dolor. Nulla
+              massa augue, porta id tortor sit amet, ultrices blandit odio. In
+              dapibus rutrum mauris sed mollis.
+            </p>
+          </div>
+        </div>
       </ItemBox>
     </section>
 
@@ -46,15 +80,21 @@ const homepageProjects = await getHomepageProjects(5);
           </ItemBox>
         </section>
 
+        <section class="resume">
+          <ItemBox>
+            <p>Get my resume:</p>
+          </ItemBox>
+        </section>
+
         <section class="game">
           <ItemBox>
             <p>Play a game</p>
           </ItemBox>
         </section>
 
-        <section class="resume">
+        <section class="ad1">
           <ItemBox>
-            <p>Get my resume:</p>
+            <p>ad</p>
           </ItemBox>
         </section>
 
@@ -106,6 +146,18 @@ const homepageProjects = await getHomepageProjects(5);
           </ItemBox>
         </section>
 
+        <section class="time">
+          <ItemBox>
+            <p>Time</p>
+          </ItemBox>
+        </section>
+
+        <section class="ad2">
+          <ItemBox>
+            <p>ad</p>
+          </ItemBox>
+        </section>
+
         <section class="watch-activity">
           <ItemBox>
             <p>Last watched:</p>
@@ -115,6 +167,7 @@ const homepageProjects = await getHomepageProjects(5);
         <section class="fun">
           <ItemBox>
             <p>Fun!</p>
+            <p>Event Logs!</p>
           </ItemBox>
         </section>
 
@@ -129,10 +182,34 @@ const homepageProjects = await getHomepageProjects(5);
 </BaseLayout>
 
 <style>
+  .hero :global(.item-box__content) {
+    padding-block: 14px;
+  }
+
   .home {
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
+  }
+
+  .about__columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-6);
+  }
+
+  .about__text {
+    min-width: 0;
+    line-height: 1.5;
+  }
+
+  .about__text p {
+    margin: 0;
+  }
+
+  .about__text p + p {
+    margin-top: var(--space-4);
   }
 
   .dashboard {
@@ -150,6 +227,14 @@ const homepageProjects = await getHomepageProjects(5);
   }
 
   @media (max-width: 48rem) {
+    .about__columns {
+      grid-template-columns: 1fr;
+    }
+
+    .hero :global(.item-box__content) {
+      padding-block: 12px;
+    }
+
     .dashboard {
       grid-template-columns: 1fr;
     }
