@@ -45,7 +45,7 @@ export const projects: ProjectDefinition[] = [
     slug: "halation",
     title: "Halation",
     repo: "https://github.com/Hyaxon/halation",
-    category: "hackathons",
+    category: "tools",
     visible: true,
     status: "active",
   },

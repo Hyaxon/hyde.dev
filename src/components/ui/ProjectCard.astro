@@ -16,12 +16,9 @@ const href = `/projects/${project.id}`;
 
 <Card href={href}>
   <div class="project-card">
-    <img
+    <span
       class="project-card__image"
-      src={iconSrc}
-      alt=""
-      width="48"
-      height="48"
+      style={{ "--project-icon": `url("${iconSrc}")` }}
       aria-hidden="true"
     />
 
@@ -44,12 +41,16 @@ const href = `/projects/${project.id}`;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-4);
+    column-gap: var(--space-2);
   }
 
   .project-card__image {
+    align-self: start;
+    margin-right: var(--space-2);
     width: 48px;
     height: 48px;
-    object-fit: contain;
+    background-color: var(--color-text);
+    mask: var(--project-icon) center / contain no-repeat;
     image-rendering: pixelated;
   }
 
@@ -66,17 +67,24 @@ const href = `/projects/${project.id}`;
   }
 
   .project-card__description {
-    margin: var(--space-1) 0 0;
+    margin: 0.1875rem 0 0;
+    font-size: 0.875em;
     color: var(--color-text-muted);
     line-height: 1.25;
   }
 
   .project-card__action {
     display: inline-flex;
+    font-size: 0.875em;
     align-items: center;
     gap: var(--space-2);
     white-space: nowrap;
     color: var(--color-text-muted);
+  }
+
+  :global(.card:hover) .project-card__action,
+  :global(.card:focus-visible) .project-card__action {
+    color: var(--color-text);
   }
 
   @media (max-width: 36rem) {

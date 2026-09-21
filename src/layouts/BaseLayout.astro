@@ -1,5 +1,7 @@
 ---
 import "../styles/global.css";
+import TerminalPath from "../components/ui/TerminalPath.astro";
+import Topbar from "../components/ui/Topbar.astro";
 
 interface Props {
   title?: string;
@@ -35,12 +37,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
 
   <body>
+    <Topbar />
+    <TerminalPath />
     <slot />
   </body>
 </html>
 
 <style>
   body {
-    padding-block: var(--space-6);
+    padding-bottom: var(--space-6);
   }
 </style>

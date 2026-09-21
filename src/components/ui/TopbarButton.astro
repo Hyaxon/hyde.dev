@@ -1,0 +1,64 @@
+---
+interface Props {
+  href?: string;
+  active?: boolean;
+}
+
+const { href, active = false } = Astro.props;
+---
+
+{href ? (
+  <a
+    class="topbar-button"
+    href={href}
+    aria-current={active ? "page" : undefined}
+  >
+    <slot />
+  </a>
+) : (
+  <button class="topbar-button" type="button" disabled title="Coming soon">
+    <slot />
+  </button>
+)}
+
+<style>
+  .topbar-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: var(--space-1) var(--space-4);
+    border: var(--border-width) solid var(--color-text);
+    border-radius: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 1.25rem;
+    line-height: 1.25;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .topbar-button[aria-current="page"],
+  .topbar-button[href]:hover,
+  .topbar-button[href]:focus-visible {
+    background: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .topbar-button[aria-current="page"] {
+    box-shadow: 0 0 0 2px var(--color-bg);
+  }
+
+  .topbar-button:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 3px;
+  }
+
+  .topbar-button:disabled {
+    cursor: not-allowed;
+    color: var(--color-text-muted);
+    border-color: var(--color-border);
+  }
+</style>

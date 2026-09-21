@@ -73,6 +73,11 @@ const formattedDate = date.toLocaleDateString("en-US", {
     color: var(--color-text-muted);
   }
 
+  :global(.card:hover) .post-card__meta,
+  :global(.card:focus-visible) .post-card__meta {
+    color: var(--color-text);
+  }
+
   @media (max-width: 36rem) {
     .post-card__meta time {
       display: none;

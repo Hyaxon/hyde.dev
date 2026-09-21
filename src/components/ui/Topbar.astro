@@ -1,0 +1,104 @@
+---
+import TopbarButton from "./TopbarButton.astro";
+
+const pathname = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const items = [
+  { label: "Home", href: "/" },
+  { label: "Projects", href: "/projects" },
+  { label: "Blog", href: "/posts" },
+  //{ label: "Research" },
+  { label: "Games" },
+  //{ label: "Career" },
+  { label: "Contact" },
+];
+---
+
+<header class="topbar">
+  <div class="topbar__inner shell">
+    <a class="topbar__brand" href="/" aria-label="Hyde.dev home">
+      <img src="/pixel/core/hyaxon-32-32.png" alt="" width="64" height="64" />
+    </a>
+
+    <nav class="topbar__nav" aria-label="Main navigation">
+      {items.map(({ label, href }) => (
+        <TopbarButton
+          href={href}
+          active={
+            !!href &&
+            (pathname === href ||
+              (href !== "/" && pathname.startsWith(`${href}/`)))
+          }
+        >
+          {label}
+        </TopbarButton>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<style>
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding-top: var(--space-6);
+    margin-bottom: var(--space-6);
+    background: linear-gradient(
+      to bottom,
+      var(--color-bg) 0 calc(100% - 22px),
+      transparent calc(100% - 22px) 100%
+    );
+  }
+
+  .topbar::before {
+    --logo-start: max(1rem, (100% - var(--content-width)) / 2);
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 22px;
+    height: var(--border-width);
+    background: linear-gradient(
+      to right,
+      var(--color-border) 0 var(--logo-start),
+      transparent var(--logo-start) calc(var(--logo-start) + 64px),
+      var(--color-border) calc(var(--logo-start) + 64px) 100%
+    );
+  }
+
+  .topbar__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-6);
+  }
+
+  .topbar__brand {
+    flex-shrink: 0;
+    align-self: flex-start;
+    background: transparent;
+  }
+
+  .topbar__brand img {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+    filter: drop-shadow(2px 0 0 var(--color-bg))
+      drop-shadow(-2px 0 0 var(--color-bg)) drop-shadow(0 2px 0 var(--color-bg))
+      drop-shadow(0 -2px 0 var(--color-bg));
+  }
+
+  .topbar__brand:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 3px;
+  }
+
+  .topbar__nav {
+    display: flex;
+    gap: var(--space-3);
+    min-width: 0;
+    overflow-x: auto;
+    padding: var(--space-1);
+    margin: calc(-1 * var(--space-1));
+  }
+</style>
