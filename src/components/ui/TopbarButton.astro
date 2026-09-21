@@ -8,7 +8,11 @@ const { href, active = false } = Astro.props;
 ---
 
 {href ? (
-  <a class="topbar-button" href={href} aria-current={active ? "page" : undefined}>
+  <a
+    class="topbar-button"
+    href={href}
+    aria-current={active ? "page" : undefined}
+  >
     <slot />
   </a>
 ) : (
