@@ -2,6 +2,8 @@
 import { defineConfig } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
+import { satteri } from "@astrojs/markdown-satteri";
+import { githubMarkdownPlugins } from "./src/lib/github/markdown.ts";
 import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
@@ -13,6 +15,8 @@ export default defineConfig({
   adapter: cloudflare(),
 
   session: false,
+
+  markdown: { processor: satteri(githubMarkdownPlugins) },
 
   integrations: [
     mdx(),

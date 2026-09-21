@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectCard from "../../components/ui/ProjectCard.astro";
+import ItemList from "../../components/ui/ItemList.astro";
+import { getProjects } from "../../lib/projects/selectors";
+
+const projects = await getProjects();
+---
+
+<BaseLayout title="Projects">
+  <main class="shell">
+    <ItemList title="Projects">
+      {projects.map((project) => (
+        <ProjectCard project={project} />
+      ))}
+    </ItemList>
+  </main>
+</BaseLayout>

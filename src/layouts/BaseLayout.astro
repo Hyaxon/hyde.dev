@@ -31,12 +31,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    
     <title>{title}</title>
   </head>
 
   <body>
     <slot />
-
   </body>
 </html>
+
+<style>
+  body {
+    padding-block: var(--space-6);
+  }
+</style>

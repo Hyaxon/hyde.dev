@@ -4,20 +4,18 @@ interface Props {
   class?: string;
 }
 
-const {
-  title,
-  class: className,
-} = Astro.props;
+const { title, class: className } = Astro.props;
+
+const hasAction = Astro.slots.has("action");
 ---
 
-<section
-  class:list={['item-box', className]}
-  aria-label={title}
->
-  {title && (
-    <h2 class="item-box__title">
-      {title}
-    </h2>
+<section class:list={["item-box", className]} aria-label={title}>
+  {title && <h2 class="item-box__title">{title}</h2>}
+
+  {hasAction && (
+    <div class="item-box__action">
+      <slot name="action" />
+    </div>
   )}
 
   <div class="item-box__content">
@@ -30,12 +28,11 @@ const {
     position: relative;
 
     border: var(--border-width) solid var(--color-border);
-    background: var(--color-panel);
+    background: var(--color-bg);
   }
 
   .item-box__title {
     position: absolute;
-
     top: 0;
     left: var(--space-6);
 
@@ -45,9 +42,21 @@ const {
     background: var(--color-bg);
 
     font: inherit;
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
     font-weight: normal;
     line-height: 1;
+
+    transform: translateY(-50%);
+  }
+
+  .item-box__action {
+    position: absolute;
+    top: 0;
+    right: var(--space-6);
+
+    padding-inline: var(--space-2);
+
+    background: var(--color-bg);
 
     transform: translateY(-50%);
   }
@@ -56,7 +65,8 @@ const {
     padding: var(--space-6);
   }
 
-  .item-box:has(.item-box__title) .item-box__content {
+  .item-box:has(.item-box__title) .item-box__content,
+  .item-box:has(.item-box__action) .item-box__content {
     padding-top: var(--space-8);
   }
 </style>

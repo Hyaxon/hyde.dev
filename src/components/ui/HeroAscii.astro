@@ -1,0 +1,171 @@
+<div class="ascii-hero" data-ascii-hero aria-hidden="true">
+  <pre></pre>
+</div>
+
+<script>
+  const CHARACTERS = " .:-=+*#%@";
+  const FPS = 12;
+  const FRAME_TIME = 1000 / FPS;
+
+  document
+    .querySelectorAll<HTMLElement>("[data-ascii-hero]")
+    .forEach((root) => {
+      const output = root.querySelector<HTMLPreElement>("pre");
+
+      if (!output) return;
+
+      const outputElement: HTMLPreElement = output;
+
+      let columns = 1;
+      let rows = 1;
+
+      let animationFrame: number | null = null;
+      let previousTime = 0;
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      );
+
+      function measure(): void {
+        const bounds = root.getBoundingClientRect();
+
+        const styles = getComputedStyle(outputElement);
+        const fontSize = Number.parseFloat(styles.fontSize);
+        const lineHeight = Number.parseFloat(styles.lineHeight);
+
+        const characterWidth = fontSize * 0.6;
+
+        columns = Math.max(1, Math.ceil(bounds.width / characterWidth));
+
+        rows = Math.max(1, Math.ceil(bounds.height / lineHeight));
+      }
+
+      function render(time: number): void {
+        const t = time * 0.001;
+        let frame = "";
+
+        for (let y = 0; y < rows; y++) {
+          for (let x = 0; x < columns; x++) {
+            const nx = x / columns;
+            const ny = y / rows;
+
+            const wave =
+              Math.sin(x * 0.18 + t * 1.4) * Math.cos(y * 0.14 - t * 0.8);
+
+            const distanceA = Math.hypot(nx - 0.35, ny - 0.45);
+
+            const rippleA = Math.sin(distanceA * 30 - t * 2);
+
+            const distanceB = Math.hypot(nx - 0.75, ny - 0.6);
+
+            const rippleB = Math.cos(distanceB * 24 + t * 1.5);
+
+            const value = (wave + rippleA + rippleB + 3) / 6;
+
+            const index = Math.min(
+              CHARACTERS.length - 1,
+              Math.floor(value * CHARACTERS.length),
+            );
+
+            frame += CHARACTERS[index];
+          }
+
+          frame += "\n";
+        }
+
+        outputElement.textContent = frame;
+      }
+
+      function animate(time: number): void {
+        if (time - previousTime >= FRAME_TIME) {
+          previousTime = time;
+          render(time);
+        }
+
+        animationFrame = requestAnimationFrame(animate);
+      }
+
+      function stop(): void {
+        if (animationFrame === null) return;
+
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+
+      function start(): void {
+        stop();
+        measure();
+
+        if (reducedMotion.matches) {
+          render(0);
+          return;
+        }
+
+        previousTime = performance.now() - FRAME_TIME;
+        animationFrame = requestAnimationFrame(animate);
+      }
+
+      const resizeObserver = new ResizeObserver(() => {
+        measure();
+
+        if (reducedMotion.matches) {
+          render(0);
+        }
+      });
+
+      resizeObserver.observe(root);
+      reducedMotion.addEventListener("change", start);
+
+      start();
+    });
+</script>
+
+<style>
+  .ascii-hero {
+    width: 100%;
+    height: clamp(12rem, 24vw, 20rem);
+    overflow: hidden;
+
+    color: var(--color-text-muted);
+
+    user-select: none;
+    pointer-events: none;
+
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 8%,
+      black 92%,
+      transparent
+    );
+
+    contain: strict;
+  }
+
+  .ascii-hero pre {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 14px;
+    letter-spacing: 0;
+
+    white-space: pre;
+
+    opacity: 0.75;
+  }
+
+  @media (max-width: 48rem) {
+    .ascii-hero {
+      height: 12rem;
+    }
+
+    .ascii-hero pre {
+      font-size: 10px;
+      line-height: 12px;
+    }
+  }
+</style>
