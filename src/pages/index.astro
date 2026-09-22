@@ -7,10 +7,10 @@ import ItemList from "../components/ui/ItemList.astro";
 import PostCard from "../components/ui/PostCard.astro";
 import { getPosts } from "../lib/posts/selectors";
 import ProjectCard from "../components/ui/ProjectCard.astro";
-import TerminalPath from "../components/ui/TerminalPath.astro";
 
 import { getHomepageProjects } from "../lib/projects/selectors";
 import HeroAscii from "../components/ui/HeroAscii.astro";
+import EmailWidget from "../components/ui/widgets/EmailWidget.astro";
 
 const homepagePosts = (await getPosts()).slice(0, 5);
 
@@ -101,7 +101,7 @@ const homepageProjects = await getHomepageProjects(6);
 
         <section class="email">
           <ItemBox>
-            <p>email me:</p>
+            <EmailWidget email="hello@hyde.dev" />
           </ItemBox>
         </section>
 

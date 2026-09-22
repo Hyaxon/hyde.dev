@@ -1,0 +1,60 @@
+---
+import icon from "../../../assets/pixel/widgets/mail.png";
+
+interface Props {
+  href?: string;
+  email: string;
+}
+
+const { href, email } = Astro.props;
+
+const iconSrc = icon.src;
+---
+
+<div class="email-widget">
+  <span
+    class="email-widget__image"
+    style={{ "--email-icon": `url("${iconSrc}")` }}
+    aria-hidden="true"
+  />
+  <div class="email-widget__text">
+    <p>Email Me:</p>
+    <a href={href ?? `mailto:${email}`}>{email}</a>
+  </div>
+</div>
+
+<style>
+  .email-widget {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .email-widget__image {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background-color: var(--color-text);
+    mask: var(--email-icon) center / contain no-repeat;
+    image-rendering: pixelated;
+  }
+
+  .email-widget__text {
+    min-width: 0;
+    line-height: 1.5;
+  }
+
+  .email-widget__text p {
+    margin: 0;
+  }
+
+  .email-widget__text a {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    overflow-wrap: anywhere;
+  }
+</style>
