@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ClockWidget from "../components/ui/widgets/ClockWidget.astro";
 
 import ItemBox from "../components/ui/ItemBox.astro";
 import ItemList from "../components/ui/ItemList.astro";
@@ -148,7 +149,7 @@ const homepageProjects = await getHomepageProjects(6);
 
         <section class="time">
           <ItemBox>
-            <p>Time</p>
+            <ClockWidget timezone="America/Chicago" />
           </ItemBox>
         </section>
 
@@ -182,6 +183,10 @@ const homepageProjects = await getHomepageProjects(6);
 </BaseLayout>
 
 <style>
+  .time :global(.item-box__content) {
+    padding: var(--space-3);
+  }
+
   .hero :global(.item-box__content) {
     padding-block: 14px;
   }
