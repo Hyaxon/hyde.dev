@@ -81,4 +81,13 @@ export const projects: ProjectDefinition[] = [
     visible: true,
     status: "active",
   },
+
+  {
+    slug: "hyde-dev",
+    title: "Hyde.dev",
+    repo: "https://github.com/Hyaxon/hyde.dev",
+    category: "web",
+    visible: true,
+    status: "active",
+  },
 ];
