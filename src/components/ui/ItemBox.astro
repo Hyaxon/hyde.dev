@@ -64,4 +64,13 @@ const hasAction = Astro.slots.has("action");
   .item-box__content {
     padding: var(--space-6);
   }
+
+  .item-box.no-border {
+    border: none;
+  }
+
+  .item-box.no-border .item-box__content {
+    padding: 0;
+    padding-left: var(--space-6);
+  }
 </style>
