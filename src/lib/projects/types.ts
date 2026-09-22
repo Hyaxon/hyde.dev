@@ -31,6 +31,8 @@ export interface ProjectDefinition {
 
   category: ProjectCategory;
   tags?: string[];
+  // Post IDs relative to src/content/posts, without the file extension.
+  linkedPosts?: string[];
 
   featured?: boolean;
   visible?: boolean;

@@ -32,10 +32,16 @@ export function githubProjectsLoader(): Loader {
         ids.add(definition.slug);
         const { owner, repo } = parseGitHubRepoUrl(definition.repo);
 
-        const [repository, readme] = await Promise.all([
-          getRepository(owner, repo),
-          getRepositoryReadme(owner, repo),
-        ]);
+        const repository = await getRepository(owner, repo);
+
+        // Require an explicit public status before fetching publishable content.
+        if (repository.private !== false) {
+          throw new Error(
+            `Refusing to publish GitHub project ${definition.slug}: repository must be public.`,
+          );
+        }
+
+        const readme = await getRepositoryReadme(owner, repo);
 
         const data = await parseData({
           id: definition.slug,
@@ -48,6 +54,8 @@ export function githubProjectsLoader(): Loader {
             category: definition.category,
 
             tags: definition.tags ?? repository.topics ?? [],
+
+            linkedPosts: definition.linkedPosts ?? [],
 
             featured: definition.featured ?? false,
 

@@ -3,6 +3,7 @@ import { githubRequest, GitHubRequestError } from "./client";
 export interface GitHubRepository {
   name: string;
   full_name: string;
+  private: boolean;
 
   description: string | null;
 

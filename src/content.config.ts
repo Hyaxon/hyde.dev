@@ -1,4 +1,4 @@
-import { defineCollection } from "astro:content";
+import { defineCollection, reference } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
@@ -37,6 +37,7 @@ const projectSchema = z.object({
   visible: z.boolean().default(true),
   tags: z.array(z.string()).default([]),
   technologies: z.array(z.string()).default([]),
+  linkedPosts: z.array(reference("posts")).default([]),
   github: z.url().optional(),
   demo: z.url().optional(),
   status: z.enum(projectStatuses).default("active"),
