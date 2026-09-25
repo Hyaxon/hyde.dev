@@ -1,5 +1,6 @@
 ---
 import placeholder from "../../../assets/pixel/widgets/weather-placeholder.svg";
+import info from "../../../assets/pixel/info.png";
 
 interface Props {
   weather: {
@@ -15,10 +16,9 @@ interface Props {
     airQuality: string | null;
   };
   iconSrc?: string;
-  preview?: boolean;
 }
 
-const { weather, iconSrc = placeholder.src, preview = false } = Astro.props;
+const { weather, iconSrc = placeholder.src } = Astro.props;
 const observedAt = new Date(weather.observedAt);
 const time = new Intl.DateTimeFormat("en-US", {
   timeZone: weather.timezone,
@@ -36,6 +36,33 @@ const fullTime = new Intl.DateTimeFormat("en-US", {
 ---
 
 <div class="weather-widget" aria-label={`Weather in ${weather.city}`}>
+  <weather-attribution class="weather-widget__attribution">
+    <details>
+      <summary aria-label="Weather data attribution">
+        <span
+          style={{ "--info-icon": `url("${info.src}")` }}
+          aria-hidden="true"
+        />
+      </summary>
+      <div class="weather-widget__attribution-card">
+        <p class="weather-widget__attribution-title">Weather data</p>
+        <p>
+          Weather by <a href="https://open-meteo.com/">Open-Meteo</a>.
+        </p>
+        <p>
+          Air quality by <a href="https://atmosphere.copernicus.eu/">CAMS</a>,
+          via Open-Meteo.
+        </p>
+        <p>
+          Data licensed under{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+          Values rounded and conditions formatted for display.
+        </p>
+
+        <p>Weather data refreshes hourly.</p>
+      </div>
+    </details>
+  </weather-attribution>
   <div class="weather-widget__layout">
     <div class="weather-widget__condition">
       <img src={iconSrc} width="32" height="32" alt="" />
@@ -82,13 +109,161 @@ const fullTime = new Intl.DateTimeFormat("en-US", {
       </div>
     </dl>
   </div>
-  {preview && (
-    <p class="weather-widget__preview">Sample weather · Design preview</p>
-  )}
 </div>
 
+<script>
+  class WeatherAttribution extends HTMLElement {
+    private cleanup?: AbortController;
+
+    connectedCallback() {
+      this.cleanup?.abort();
+      this.cleanup = new AbortController();
+      const { signal } = this.cleanup;
+      const details = this.querySelector("details");
+      if (!details) return;
+
+      this.addEventListener(
+        "pointerenter",
+        (event) => {
+          if (event.pointerType === "mouse") details.open = true;
+        },
+        { signal },
+      );
+      this.addEventListener(
+        "pointerleave",
+        () => {
+          if (!this.contains(document.activeElement)) details.open = false;
+        },
+        { signal },
+      );
+      this.addEventListener(
+        "focusin",
+        (event) => {
+          if (
+            event.target instanceof Element &&
+            event.target.matches(":focus-visible")
+          ) {
+            details.open = true;
+          }
+        },
+        { signal },
+      );
+      this.addEventListener(
+        "focusout",
+        (event) => {
+          if (
+            !(event.relatedTarget instanceof Node) ||
+            !this.contains(event.relatedTarget)
+          ) {
+            details.open = false;
+          }
+        },
+        { signal },
+      );
+      this.addEventListener(
+        "keydown",
+        (event) => {
+          if (event.key === "Escape") {
+            details.querySelector("summary")?.focus();
+            details.open = false;
+          }
+        },
+        { signal },
+      );
+      document.addEventListener(
+        "pointerdown",
+        (event) => {
+          if (event.target instanceof Node && !this.contains(event.target))
+            details.open = false;
+        },
+        { signal },
+      );
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.abort();
+    }
+  }
+
+  if (!customElements.get("weather-attribution")) {
+    customElements.define("weather-attribution", WeatherAttribution);
+  }
+</script>
+
 <style>
+  .weather-widget__attribution {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    z-index: 2;
+  }
+
+  .weather-widget__attribution summary {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    list-style: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+
+  .weather-widget__attribution summary::-webkit-details-marker {
+    display: none;
+  }
+  .weather-widget__attribution summary span {
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: var(--info-icon) center / contain no-repeat;
+    image-rendering: pixelated;
+  }
+
+  .weather-widget__attribution summary:hover,
+  .weather-widget__attribution summary:focus-visible,
+  .weather-widget__attribution details[open] summary {
+    color: var(--color-text);
+  }
+
+  .weather-widget__attribution summary:focus-visible,
+  .weather-widget__attribution-card a:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+
+  .weather-widget__attribution-card {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: min(18rem, calc(100vw - 3rem));
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-panel);
+    box-shadow: 0 4px 12px #0006;
+    font-size: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .weather-widget__attribution-card p + p {
+    margin-top: var(--space-2);
+  }
+  .weather-widget__attribution-title {
+    color: #fff;
+  }
+  .weather-widget__attribution-card a {
+    color: var(--color-text-muted);
+  }
+  .weather-widget__attribution-card a {
+    text-underline-offset: 0.2em;
+  }
+  .weather-widget__attribution-card a:hover,
+  .weather-widget__attribution-card a:focus-visible {
+    color: var(--color-text);
+  }
+
   .weather-widget {
+    position: relative;
     container-type: inline-size;
     font-size: 1rem;
     line-height: 1.4;
@@ -158,12 +333,6 @@ const fullTime = new Intl.DateTimeFormat("en-US", {
   }
   abbr {
     text-decoration: none;
-  }
-
-  .weather-widget__preview {
-    margin-top: var(--space-3);
-    color: var(--color-text-muted);
-    font-size: 0.75rem;
   }
 
   .sr-only {
