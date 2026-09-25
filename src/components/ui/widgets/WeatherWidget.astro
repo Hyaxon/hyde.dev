@@ -1,0 +1,491 @@
+---
+import fallbackIcon from "../../../assets/pixel/widgets/weather/cloudy.png";
+import info from "../../../assets/pixel/info.png";
+
+import { weatherConfig } from "../../../data/widgets";
+---
+
+<live-weather
+  class="weather-widget"
+  aria-label={`Weather in ${weatherConfig.city}`}
+>
+  <weather-attribution class="weather-widget__attribution">
+    <details>
+      <summary aria-label="Weather data attribution">
+        <span
+          style={{ "--info-icon": `url("${info.src}")` }}
+          aria-hidden="true"
+        />
+      </summary>
+      <div class="weather-widget__attribution-card">
+        <p class="weather-widget__attribution-title">Weather data</p>
+        <p>
+          Weather by <a href="https://open-meteo.com/">Open-Meteo</a>.
+        </p>
+        <p>
+          UV data by <a href="https://atmosphere.copernicus.eu/">CAMS</a>, via
+          Open-Meteo.
+        </p>
+        <p>
+          Data licensed under{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+          Values rounded and conditions formatted for display.
+        </p>
+      </div>
+    </details>
+  </weather-attribution>
+  <div class="weather-widget__layout">
+    <div class="weather-widget__condition">
+      <img
+        data-weather-icon
+        src={fallbackIcon.src}
+        width="32"
+        height="32"
+        loading="lazy"
+        alt=""
+        data-empty
+      />
+      <p data-weather="condition">—</p>
+    </div>
+
+    <div class="weather-widget__summary">
+      <p class="weather-widget__city">{weatherConfig.city}</p>
+      <time
+        data-weather="time"
+        aria-live="off"
+        title={`Current time in ${weatherConfig.city}`}
+      >
+        —
+      </time>
+      <p class="weather-widget__temperature" data-weather="temperature">
+        —°F
+      </p>
+      <p class="weather-widget__range">
+        <span data-weather="high">Hi: —</span>
+        <span data-weather="low">Lo: —</span>
+      </p>
+    </div>
+
+    <dl class="weather-widget__details">
+      <div>
+        <dt>Humidity:</dt>
+        <dd data-weather="humidity">—</dd>
+      </div>
+      <div>
+        <dt>UV Index:</dt>
+        <dd data-weather="uv">—</dd>
+      </div>
+      <div>
+        <dt>Feels like:</dt>
+        <dd data-weather="feels-like">—°F</dd>
+      </div>
+    </dl>
+  </div>
+  <p class="weather-widget__status" data-weather="status" role="status" hidden>
+    Loading weather…
+  </p>
+  <noscript>Enable JavaScript to load the weather.</noscript>
+</live-weather>
+
+<script>
+  import {
+    watchWeather,
+    type WeatherState,
+  } from "../../../lib/client/weather-store";
+  import {
+    conditionLabel,
+    conditionIcon,
+  } from "../../../lib/client/weather-display";
+  import { weatherConfig } from "../../../data/widgets";
+
+  const icons = import.meta.glob<string>(
+    "../../../assets/pixel/widgets/weather/*.png",
+    {
+      eager: true,
+      query: "?url",
+      import: "default",
+    },
+  );
+
+  class LiveWeather extends HTMLElement {
+    private stop?: () => void;
+    private stopClock?: () => void;
+
+    connectedCallback() {
+      this.stop?.();
+      this.stopClock?.();
+      const fields = new Map(
+        Array.from(this.querySelectorAll<HTMLElement>("[data-weather]")).map(
+          (element) => [element.dataset.weather!, element] as const,
+        ),
+      );
+      const write = (name: string, value: string) => {
+        const element = fields.get(name);
+        if (element && element.textContent !== value)
+          element.textContent = value;
+      };
+      const time = fields.get("time") as HTMLTimeElement;
+      const temperature = fields.get("temperature")!;
+      const icon = this.querySelector<HTMLImageElement>("[data-weather-icon]")!;
+      fields.get("status")!.hidden = false;
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: weatherConfig.timezone,
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZoneName: "short",
+        hour12: true,
+      });
+      const fullFormatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: weatherConfig.timezone,
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+
+      const updateClock = () => {
+        const now = new Date();
+        write("time", formatter.format(now));
+        time.dateTime = now.toISOString();
+      };
+      const resumeClock = () => {
+        if (document.visibilityState === "visible") updateClock();
+      };
+      updateClock();
+      const clockInterval = window.setInterval(resumeClock, 1000);
+      document.addEventListener("visibilitychange", resumeClock);
+      this.stopClock = () => {
+        window.clearInterval(clockInterval);
+        document.removeEventListener("visibilitychange", resumeClock);
+      };
+
+      this.stop = watchWeather(({ snapshot, status, error }: WeatherState) => {
+        if (!snapshot) {
+          icon.setAttribute("data-empty", "");
+          write("condition", "—");
+          write("temperature", "—°F");
+          temperature.setAttribute("aria-label", "Temperature unavailable");
+          temperature.removeAttribute("title");
+          write("high", "Hi: —");
+          write("low", "Lo: —");
+          for (const field of ["humidity", "uv"]) write(field, "—");
+          write("feels-like", "—°F");
+          write(
+            "status",
+            status === "loading" ? "Loading weather…" : "Weather unavailable",
+          );
+          return;
+        }
+        const date = new Date(snapshot.conditionsAt);
+        const iconName = conditionIcon(snapshot.weatherCode, snapshot.isDay);
+        const iconSrc =
+          icons[`../../../assets/pixel/widgets/weather/${iconName}.png`];
+        if (icon.getAttribute("src") !== iconSrc) icon.src = iconSrc;
+        icon.removeAttribute("data-empty");
+        temperature.title = `Conditions as of ${fullFormatter.format(date)}`;
+        write(
+          "condition",
+          conditionLabel(snapshot.weatherCode, snapshot.isDay),
+        );
+        const degrees = Math.round(snapshot.temperature);
+        write("temperature", `${degrees}°F`);
+        temperature.setAttribute("aria-label", `${degrees} degrees Fahrenheit`);
+        write("high", `Hi: ${Math.round(snapshot.high)}`);
+        write("low", `Lo: ${Math.round(snapshot.low)}`);
+        write("humidity", `${Math.round(snapshot.humidity)}%`);
+        // UV data has its own timestamp and may lag behind weather.
+        const airAge = snapshot.uvAt
+          ? Date.now() - Date.parse(snapshot.uvAt)
+          : Infinity;
+        const airAvailable =
+          airAge >= -60_000 && airAge < weatherConfig.unavailableAfterMs;
+        write(
+          "uv",
+          airAvailable && snapshot.uvIndex !== null
+            ? String(Math.round(snapshot.uvIndex * 10) / 10)
+            : "—",
+        );
+        write("feels-like", `${Math.round(snapshot.feelsLike)}°F`);
+        write(
+          "status",
+          status === "stale"
+            ? "Weather outdated · Showing last available conditions"
+            : error
+              ? "Refresh unavailable · Showing saved conditions"
+              : "",
+        );
+      });
+    }
+
+    disconnectedCallback() {
+      this.stop?.();
+      this.stopClock?.();
+    }
+  }
+
+  if (!customElements.get("live-weather"))
+    customElements.define("live-weather", LiveWeather);
+
+  class WeatherAttribution extends HTMLElement {
+    private cleanup?: AbortController;
+
+    connectedCallback() {
+      this.cleanup?.abort();
+      this.cleanup = new AbortController();
+      const { signal } = this.cleanup;
+      const details = this.querySelector("details");
+      if (!details) return;
+
+      this.addEventListener(
+        "pointerenter",
+        (event) => {
+          if (event.pointerType === "mouse") details.open = true;
+        },
+        { signal },
+      );
+      this.addEventListener(
+        "pointerleave",
+        () => {
+          if (!this.contains(document.activeElement)) details.open = false;
+        },
+        { signal },
+      );
+      this.addEventListener(
+        "focusin",
+        (event) => {
+          if (
+            event.target instanceof Element &&
+            event.target.matches(":focus-visible")
+          ) {
+            details.open = true;
+          }
+        },
+        { signal },
+      );
+      this.addEventListener(
+        "focusout",
+        (event) => {
+          if (
+            !(event.relatedTarget instanceof Node) ||
+            !this.contains(event.relatedTarget)
+          ) {
+            details.open = false;
+          }
+        },
+        { signal },
+      );
+      this.addEventListener(
+        "keydown",
+        (event) => {
+          if (event.key === "Escape") {
+            details.querySelector("summary")?.focus();
+            details.open = false;
+          }
+        },
+        { signal },
+      );
+      document.addEventListener(
+        "pointerdown",
+        (event) => {
+          if (event.target instanceof Node && !this.contains(event.target))
+            details.open = false;
+        },
+        { signal },
+      );
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.abort();
+    }
+  }
+
+  if (!customElements.get("weather-attribution")) {
+    customElements.define("weather-attribution", WeatherAttribution);
+  }
+</script>
+
+<style>
+  .weather-widget__attribution {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    z-index: 2;
+  }
+
+  .weather-widget__attribution summary {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    list-style: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+
+  .weather-widget__attribution summary::-webkit-details-marker {
+    display: none;
+  }
+  .weather-widget__attribution summary span {
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: var(--info-icon) center / contain no-repeat;
+    image-rendering: pixelated;
+  }
+
+  .weather-widget__attribution summary:hover,
+  .weather-widget__attribution summary:focus-visible,
+  .weather-widget__attribution details[open] summary {
+    color: var(--color-text);
+  }
+
+  .weather-widget__attribution summary:focus-visible,
+  .weather-widget__attribution-card a:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+
+  .weather-widget__attribution-card {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: min(18rem, calc(100vw - 3rem));
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-panel);
+    box-shadow: 0 4px 12px #0006;
+    font-size: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .weather-widget__attribution-card p + p {
+    margin-top: var(--space-2);
+  }
+  .weather-widget__attribution-title {
+    color: #fff;
+  }
+  .weather-widget__attribution-card a {
+    color: var(--color-text-muted);
+  }
+  .weather-widget__attribution-card a {
+    text-underline-offset: 0.2em;
+  }
+  .weather-widget__attribution-card a:hover,
+  .weather-widget__attribution-card a:focus-visible {
+    color: var(--color-text);
+  }
+
+  .weather-widget {
+    display: block;
+    position: relative;
+    container-type: inline-size;
+    font-size: 1rem;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .weather-widget__layout {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  p,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  .weather-widget__condition {
+    width: 96px;
+    text-align: center;
+    overflow-wrap: anywhere;
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+  }
+
+  .weather-widget__condition img {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+  }
+
+  .weather-widget__condition img[data-empty] {
+    visibility: hidden;
+  }
+
+  .weather-widget__city {
+    color: #fff;
+  }
+
+  .weather-widget__summary time {
+    color: var(--color-text);
+  }
+
+  .weather-widget__temperature {
+    margin-block: var(--space-2);
+    font-size: 2.75rem;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .weather-widget__range {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+  }
+
+  .weather-widget__details {
+    display: grid;
+    gap: 0;
+  }
+
+  .weather-widget__details div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .weather-widget__details dd {
+    max-width: 12ch;
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
+
+  .weather-widget__status {
+    margin-top: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+  }
+
+  .weather-widget__status:empty {
+    display: none;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @container (max-width: 27rem) {
+    .weather-widget__layout {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: var(--space-4);
+    }
+    .weather-widget__condition img {
+      width: 64px;
+      height: 64px;
+    }
+    .weather-widget__details {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
