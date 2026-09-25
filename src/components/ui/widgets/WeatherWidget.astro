@@ -1,0 +1,192 @@
+---
+import placeholder from "../../../assets/pixel/widgets/weather-placeholder.svg";
+
+interface Props {
+  weather: {
+    city: string;
+    timezone: string;
+    observedAt: string;
+    condition: string;
+    temperature: number;
+    high: number;
+    low: number;
+    humidity: number | null;
+    uvIndex: number | null;
+    airQuality: string | null;
+  };
+  iconSrc?: string;
+  preview?: boolean;
+}
+
+const { weather, iconSrc = placeholder.src, preview = false } = Astro.props;
+const observedAt = new Date(weather.observedAt);
+const time = new Intl.DateTimeFormat("en-US", {
+  timeZone: weather.timezone,
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+})
+  .format(observedAt)
+  .replace(/\s/g, "");
+const fullTime = new Intl.DateTimeFormat("en-US", {
+  timeZone: weather.timezone,
+  dateStyle: "medium",
+  timeStyle: "short",
+}).format(observedAt);
+---
+
+<div class="weather-widget" aria-label={`Weather in ${weather.city}`}>
+  <div class="weather-widget__layout">
+    <div class="weather-widget__condition">
+      <img src={iconSrc} width="32" height="32" alt="" />
+      <p>{weather.condition}</p>
+    </div>
+
+    <div class="weather-widget__summary">
+      <p class="weather-widget__city">{weather.city}</p>
+      <time
+        datetime={weather.observedAt}
+        title={`Conditions as of ${fullTime}`}
+      >
+        <span class="sr-only">Conditions as of </span>
+        {time}
+      </time>
+      <p
+        class="weather-widget__temperature"
+        aria-label={`${Math.round(weather.temperature)} degrees Fahrenheit`}
+      >
+        {Math.round(weather.temperature)}°F
+      </p>
+      <p class="weather-widget__range">
+        <span>Hi: {Math.round(weather.high)}</span>
+        <span>Lo: {Math.round(weather.low)}</span>
+      </p>
+    </div>
+
+    <dl class="weather-widget__details">
+      <div>
+        <dt>Humidity:</dt>
+        <dd>
+          {weather.humidity === null ? "—" : `${Math.round(weather.humidity)}%`}
+        </dd>
+      </div>
+      <div>
+        <dt>UV Index:</dt>
+        <dd>{weather.uvIndex === null ? "—" : weather.uvIndex}</dd>
+      </div>
+      <div>
+        <dt>
+          <abbr title="Air quality index">AQI</abbr>:
+        </dt>
+        <dd>{weather.airQuality ?? "—"}</dd>
+      </div>
+    </dl>
+  </div>
+  {preview && (
+    <p class="weather-widget__preview">Sample weather · Design preview</p>
+  )}
+</div>
+
+<style>
+  .weather-widget {
+    container-type: inline-size;
+    font-size: 1rem;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .weather-widget__layout {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  p,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  .weather-widget__condition {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+  }
+
+  .weather-widget__condition img {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+  }
+
+  .weather-widget__city {
+    color: #fff;
+  }
+
+  .weather-widget__summary time {
+    color: var(--color-text);
+  }
+
+  .weather-widget__temperature {
+    margin-block: var(--space-2);
+    font-size: 2.75rem;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .weather-widget__range {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+  }
+
+  .weather-widget__details {
+    display: grid;
+    gap: 0;
+  }
+
+  .weather-widget__details div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .weather-widget__details dd {
+    text-align: right;
+  }
+  abbr {
+    text-decoration: none;
+  }
+
+  .weather-widget__preview {
+    margin-top: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @container (max-width: 27rem) {
+    .weather-widget__layout {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: var(--space-4);
+    }
+    .weather-widget__condition img {
+      width: 64px;
+      height: 64px;
+    }
+    .weather-widget__details {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
