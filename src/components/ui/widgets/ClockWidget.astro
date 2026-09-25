@@ -1,11 +1,12 @@
 ---
 import icon from "../../../assets/pixel/widgets/clock.png";
+import { locationConfig } from "../../../data/location";
 
 interface Props {
-  timezone: string;
+  timezone?: string;
 }
 
-const { timezone } = Astro.props;
+const { timezone = locationConfig.timezone } = Astro.props;
 
 const iconSrc = icon.src;
 ---

@@ -2,7 +2,6 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ClockWidget from "../components/ui/widgets/ClockWidget.astro";
 import WeatherWidget from "../components/ui/widgets/WeatherWidget.astro";
-import { weatherPreview } from "../data/widgets";
 
 import ItemBox from "../components/ui/ItemBox.astro";
 import ItemList from "../components/ui/ItemList.astro";
@@ -145,13 +144,13 @@ const homepageProjects = await getHomepageProjects(6);
 
         <section class="weather">
           <ItemBox>
-            <WeatherWidget weather={weatherPreview} />
+            <WeatherWidget />
           </ItemBox>
         </section>
 
         <section class="time">
           <ItemBox class="no-border">
-            <ClockWidget timezone="America/Chicago" />
+            <ClockWidget />
           </ItemBox>
         </section>
 
