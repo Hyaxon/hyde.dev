@@ -96,6 +96,15 @@ export const projects: ProjectDefinition[] = [
     title: "MAGI Code Review",
     repo: "https://github.com/Hyaxon/magi-agents",
     category: "tools",
+    visible: false,
+    status: "active",
+  },
+
+  {
+    slug: "giad",
+    title: "GIAD",
+    repo: "https://github.com/Hyaxon/giad",
+    category: "tools",
     visible: true,
     status: "active",
   },
