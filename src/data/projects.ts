@@ -103,7 +103,7 @@ export const projects: ProjectDefinition[] = [
   {
     slug: "giad",
     title: "GIAD",
-    repo: "https://github.com/Hyaxon/giad",
+    repo: "https://github.com/Hyaxon/giad-reviwer",
     category: "tools",
     visible: true,
     status: "active",
