@@ -1,5 +1,7 @@
 import type { ProjectDefinition } from "../lib/projects/types";
 
+// GitHub supplies README content, topics, stats, languages, dates, and the
+// homepage link. Add demo/docs URLs or linkedPosts IDs here when needed.
 export const projects: ProjectDefinition[] = [
   {
     slug: "mr-helpsworth",
@@ -103,7 +105,7 @@ export const projects: ProjectDefinition[] = [
   {
     slug: "giad",
     title: "GIAD",
-    repo: "https://github.com/Hyaxon/giad-reviwer",
+    repo: "https://github.com/Hyaxon/giad-reviewer",
     category: "tools",
     visible: true,
     status: "active",

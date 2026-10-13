@@ -30,6 +30,7 @@ const projectSchema = z.object({
   description: z.string(),
   category: z.enum(projectCategories).default("software"),
   publishedAt: z.coerce.date().optional(),
+  createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   pushedAt: z.coerce.date().optional(),
   draft: z.boolean().default(false),
@@ -40,6 +41,23 @@ const projectSchema = z.object({
   linkedPosts: z.array(reference("posts")).default([]),
   github: z.url().optional(),
   demo: z.url().optional(),
+  docs: z.url().optional(),
+  repositoryStats: z
+    .object({
+      stars: z.number().int().nonnegative(),
+      forks: z.number().int().nonnegative(),
+      watchers: z.number().int().nonnegative(),
+      contributors: z.number().int().nonnegative().optional(),
+    })
+    .optional(),
+  languages: z
+    .array(
+      z.object({
+        name: z.string(),
+        percentage: z.number().min(0).max(100),
+      }),
+    )
+    .default([]),
   status: z.enum(projectStatuses).default("active"),
 });
 

@@ -28,6 +28,9 @@ export interface ProjectDefinition {
   // Optional metadata overrides.
   title?: string;
   description?: string;
+  // Defaults to the repository homepage when available.
+  demo?: string;
+  docs?: string;
 
   category: ProjectCategory;
   tags?: string[];

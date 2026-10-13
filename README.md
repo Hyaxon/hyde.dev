@@ -124,8 +124,21 @@ non-draft projects. Local Markdown/MDX projects remain in `src/content/projects/
 
 Set `GITHUB_TOKEN` in the build environment (or a local `.env` file) to use
 authenticated GitHub API limits. It is only used during content loading. Missing
-READMEs produce an empty body; other GitHub errors fail the build rather than
-publishing incomplete content.
+READMEs produce an empty body; other errors fetching the repository or README
+fail the build rather than publishing incomplete content.
+
+Project breakdowns include a metadata sidebar. Stars, forks, watchers, creation
+and update dates come from the repository response; language percentages and
+contributor counts use GitHub's language and paginated contributor endpoints.
+Those two optional endpoints log a warning and omit their data on failure.
+These values refresh at build time, with no browser API requests or exposed token.
+
+The repository homepage supplies the live deployment link. Set `demo` to override
+it and `docs` to add a documentation link in `src/data/projects.ts`. Use
+`linkedPosts: ["post-id"]` to show related published posts (drafts are excluded).
+Local projects support the same links and references in frontmatter; GitHub-only
+statistics stay hidden unless supplied. No placeholder links or statistics are
+generated.
 
 Run the README rendering regression checks with:
 
