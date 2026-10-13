@@ -1,9 +1,8 @@
 ---
 import { render } from "astro:content";
 import { getProjects } from "../../lib/projects/selectors";
-import ContentLayout from "../../layouts/ContentLayout.astro";
-import ItemBox from "../../components/ui/ItemBox.astro";
-import Card from "../../components/ui/Card.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectSidebar from "../../components/ui/ProjectSidebar.astro";
 
 export async function getStaticPaths() {
   return (await getProjects()).map((project) => ({
@@ -14,29 +13,236 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
+const isGitHubProject = project.collection === "githubProjects";
 ---
 
-<ContentLayout
+<BaseLayout
   title={project.data.title}
   description={project.data.description}
+  index={false}
 >
-  <Card href="/projects">
-    <p>&lt; Projects</p>
-  </Card>
+  <main class="shell">
+    <div class="project-layout">
+      <article
+        class="project-readme"
+        aria-label={`${project.data.title} ${isGitHubProject ? "README" : "breakdown"}`}
+      >
+        <p class="readme-label">
+          {isGitHubProject ? "README.md" : "Project breakdown"}
+        </p>
+        <div class="readme-content">
+          {project.body?.trim() ? (
+            <Content />
+          ) : (
+            <p>
+              No README has been added yet. Visit the source repository for more
+              about this project.
+            </p>
+          )}
+        </div>
+      </article>
+      <ProjectSidebar project={project} />
+    </div>
+    <nav class="project-navigation" aria-label="Back to site">
+      <a href="/projects">&lt; Projects</a>
+      <a href="/">&lt; Home</a>
+    </nav>
+  </main>
+</BaseLayout>
 
-  <Card href="/">
-    <p>&lt; Home</p>
-  </Card>
-
-  <ItemBox>
-    <Content />
-  </ItemBox>
-
-  <Card href="/projects">
-    <p>&lt; Projects</p>
-  </Card>
-
-  <Card href="/">
-    <p>&lt; Home</p>
-  </Card>
-</ContentLayout>
+<style>
+  .project-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2.4fr) minmax(20rem, 1fr);
+    align-items: start;
+    gap: var(--space-6);
+  }
+  .project-readme {
+    min-width: 0;
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--space-6);
+  }
+  .readme-label {
+    margin: 0 0 var(--space-6);
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+  .readme-content {
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+  }
+  .readme-content :global(> :first-child) {
+    margin-top: 0;
+  }
+  .readme-content :global(> :last-child) {
+    margin-bottom: 0;
+  }
+  .readme-content :global(h1),
+  .readme-content :global(h2),
+  .readme-content :global(h3),
+  .readme-content :global(h4),
+  .readme-content :global(h5),
+  .readme-content :global(h6) {
+    line-height: 1.35;
+    margin-block: 1.75em 0.75em;
+    font-weight: normal;
+  }
+  .readme-content :global(h1) {
+    font-size: 1.75rem;
+  }
+  .readme-content :global(h2) {
+    font-size: 1.375rem;
+    padding-bottom: var(--space-2);
+    border-bottom: var(--border-width) dashed var(--color-border);
+  }
+  .readme-content :global(h3) {
+    font-size: 1.125rem;
+  }
+  .readme-content :global(h4),
+  .readme-content :global(h5),
+  .readme-content :global(h6) {
+    font-size: 1rem;
+  }
+  .readme-content :global(p),
+  .readme-content :global(ul),
+  .readme-content :global(ol) {
+    margin-block: 0 1.25em;
+  }
+  .readme-content :global(a) {
+    color: var(--color-text);
+    text-decoration-color: var(--color-border);
+    text-underline-offset: 3px;
+  }
+  .readme-content :global(a:hover) {
+    color: var(--color-code-keyword);
+    text-decoration-color: currentColor;
+  }
+  .readme-content :global(a:focus-visible) {
+    outline: 2px solid var(--color-text);
+    outline-offset: 3px;
+  }
+  .readme-content :global(img) {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+  }
+  .readme-content :global(pre) {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: var(--space-4);
+    margin-block: var(--space-6);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: 0;
+    background: var(--color-panel);
+    color: var(--color-text);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    tab-size: 2;
+    scrollbar-color: var(--color-border) var(--color-panel);
+  }
+  .readme-content :global(pre:focus-visible) {
+    outline: 2px solid var(--color-text);
+    outline-offset: 3px;
+  }
+  .readme-content :global(code),
+  .readme-content :global(pre),
+  .readme-content :global(kbd),
+  .readme-content :global(samp) {
+    font-family: var(--font-mono);
+  }
+  .readme-content :global(:not(pre) > code),
+  .readme-content :global(kbd),
+  .readme-content :global(samp) {
+    padding: 0.1em 0.35em;
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-panel);
+    color: var(--color-code-keyword);
+    font-size: 0.9em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .readme-content :global(pre code) {
+    display: block;
+    font-size: inherit;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .readme-content :global(ul),
+  .readme-content :global(ol) {
+    padding-left: var(--space-6);
+  }
+  .readme-content :global(li::marker) {
+    color: var(--color-border);
+  }
+  .readme-content :global(li > ul),
+  .readme-content :global(li > ol) {
+    margin-block: var(--space-2) 0;
+  }
+  .readme-content :global(input[type="checkbox"]) {
+    accent-color: var(--color-code-string);
+  }
+  .readme-content :global(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin-block: var(--space-4);
+  }
+  .readme-content :global(th),
+  .readme-content :global(td) {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    text-align: left;
+  }
+  .readme-content :global(th) {
+    background: var(--color-panel);
+    color: var(--color-code-keyword);
+    font-weight: normal;
+  }
+  .readme-content :global(blockquote) {
+    margin-inline: 0;
+    padding: var(--space-3) var(--space-4);
+    border-left: 2px solid var(--color-border);
+    background: var(--color-panel);
+    color: var(--color-code-comment);
+  }
+  .readme-content :global(blockquote > :last-child) {
+    margin-bottom: 0;
+  }
+  .readme-content :global(details) {
+    border: var(--border-width) solid var(--color-border);
+    padding: var(--space-3) var(--space-4);
+    margin-block: var(--space-4);
+  }
+  .readme-content :global(summary) {
+    cursor: pointer;
+    color: var(--color-code-keyword);
+  }
+  .readme-content :global(details[open] > summary) {
+    margin-bottom: var(--space-4);
+  }
+  .readme-content :global(hr) {
+    border: 0;
+    border-top: 1px dashed var(--color-border);
+    margin-block: var(--space-6);
+  }
+  .project-navigation {
+    display: flex;
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+    font-size: 0.8125rem;
+  }
+  @media (max-width: 56rem) {
+    .project-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .project-readme {
+      padding: var(--space-4);
+    }
+  }
+</style>

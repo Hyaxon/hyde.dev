@@ -18,6 +18,16 @@
   --color-text-muted: #778078;
   --color-border: #89938b;
 
+  /* Terminal syntax highlighting */
+  --color-code-comment: #8b978e;
+  --color-code-keyword: #d1d9ca;
+  --color-code-string: #a4b79b;
+  --color-code-constant: #c6bea5;
+  --color-code-function: #a7c0b6;
+  --color-code-type: #b9c6b1;
+  --color-code-punctuation: #89938b;
+  --color-code-deleted: #c4a49a;
+
   /* Typography */
   --font-mono: "Departure Mono", "SFMono-Regular", Consolas, monospace;
   --font-readable: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;

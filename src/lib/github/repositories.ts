@@ -1,4 +1,4 @@
-import { githubRequest, GitHubRequestError } from "./client";
+import { githubRequest, GitHubRequestError } from "./client.ts";
 
 export interface GitHubRepository {
   name: string;
@@ -8,6 +8,11 @@ export interface GitHubRepository {
   description: string | null;
 
   html_url: string;
+  homepage: string | null;
+  created_at: string;
+  stargazers_count: number;
+  forks_count: number;
+  subscribers_count: number;
 
   updated_at: string;
   pushed_at: string;
@@ -46,6 +51,42 @@ export function parseGitHubRepoUrl(repoUrl: string) {
 
 export function getRepository(owner: string, repo: string) {
   return githubRequest<GitHubRepository>(`/repos/${owner}/${repo}`);
+}
+
+export async function getRepositoryLanguages(owner: string, repo: string) {
+  const languages = await githubRequest<Record<string, number>>(
+    `/repos/${owner}/${repo}/languages`,
+  );
+  const entries = Object.entries(languages).filter(([, bytes]) => bytes > 0);
+  const total = entries.reduce((sum, [, bytes]) => sum + bytes, 0);
+  return entries
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([name, bytes]) => ({ name, percentage: (bytes / total) * 100 }));
+}
+
+export async function getRepositoryContributorCount(
+  owner: string,
+  repo: string,
+) {
+  let count = 0;
+  for (let page = 1; ; page++) {
+    const contributors = await githubRequest<unknown[] | undefined>(
+      `/repos/${owner}/${repo}/contributors?per_page=100&page=${page}`,
+    );
+    // GitHub returns 204 for an empty repository.
+    count += contributors?.length ?? 0;
+    if (!contributors || contributors.length < 100) return count;
+  }
+}
+
+export function repositoryHomepage(homepage: string | null) {
+  if (!homepage) return undefined;
+  try {
+    const url = new URL(homepage);
+    return ["https:", "http:"].includes(url.protocol) ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 interface GitHubReadme {

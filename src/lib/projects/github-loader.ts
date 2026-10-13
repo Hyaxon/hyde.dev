@@ -5,6 +5,9 @@ import { projects } from "../../data/projects";
 import {
   getRepository,
   getRepositoryReadme,
+  getRepositoryLanguages,
+  getRepositoryContributorCount,
+  repositoryHomepage,
   parseGitHubRepoUrl,
 } from "../github/repositories";
 
@@ -12,7 +15,7 @@ export function githubProjectsLoader(): Loader {
   return {
     name: "github-projects",
 
-    async load({ store, parseData, renderMarkdown }) {
+    async load({ store, parseData, renderMarkdown, logger }) {
       const entries = [];
 
       const githubProjects = projects.filter(
@@ -41,7 +44,29 @@ export function githubProjectsLoader(): Loader {
           );
         }
 
-        const readme = await getRepositoryReadme(owner, repo);
+        // Auxiliary metadata should not prevent an otherwise valid README
+        // from publishing if GitHub temporarily cannot serve these endpoints.
+        const optionalMetadata = async <T>(
+          label: string,
+          request: Promise<T>,
+        ) => {
+          try {
+            return await request;
+          } catch {
+            logger.warn(
+              `Could not load ${label} for ${owner}/${repo}; omitting it.`,
+            );
+            return undefined;
+          }
+        };
+        const [readme, languages, contributors] = await Promise.all([
+          getRepositoryReadme(owner, repo),
+          optionalMetadata("languages", getRepositoryLanguages(owner, repo)),
+          optionalMetadata(
+            "contributors",
+            getRepositoryContributorCount(owner, repo),
+          ),
+        ]);
 
         const data = await parseData({
           id: definition.slug,
@@ -69,6 +94,17 @@ export function githubProjectsLoader(): Loader {
 
             repoOwner: owner,
             repoName: repo,
+
+            demo: definition.demo ?? repositoryHomepage(repository.homepage),
+            docs: definition.docs,
+            createdAt: repository.created_at,
+            repositoryStats: {
+              stars: repository.stargazers_count,
+              forks: repository.forks_count,
+              watchers: repository.subscribers_count,
+              contributors,
+            },
+            languages: languages ?? [],
 
             updatedAt: repository.updated_at,
 
