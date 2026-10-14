@@ -1,0 +1,158 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import artwork from "../data/ascii/404.txt?raw";
+
+// Keep indentation within the artwork; only remove surrounding blank lines.
+const ascii = artwork.replace(/\r\n/g, "\n").replace(/^\n+|\n+$/g, "");
+const columns = Math.max(1, ...ascii.split("\n").map((line) => line.length));
+const links = [
+  { href: "/", label: "Go Home" },
+  { href: "/projects", label: "View Projects" },
+  { href: "/posts", label: "Read Posts" },
+];
+---
+
+<BaseLayout
+  title="404 — Page not found | Hyde.dev"
+  description="No such file or directory. Find your way back to Hyde.dev."
+  index={false}
+  searchIndex={false}
+  terminalCommand="exit"
+  terminalValue="1"
+>
+  <main class="shell not-found" aria-labelledby="not-found-title">
+    <div class="not-found__art" aria-hidden="true">
+      <pre style={`--ascii-columns: ${columns}`}>{ascii}</pre>
+    </div>
+
+    <div class="not-found__message">
+      <h1 id="not-found-title">
+        <span class="sr-only">404: </span>Page not found
+      </h1>
+      <p>No such file or directory.</p>
+    </div>
+
+    <nav class="not-found__links" aria-label="Find your way back">
+      {links.map(({ href, label }) => (
+        <a href={href}>
+          <span class="not-found__bracket" aria-hidden="true">
+            [
+          </span>
+          <span class="not-found__link-label">{label}</span>
+          <span class="not-found__arrow" aria-hidden="true">
+            &gt;
+          </span>
+          <span class="not-found__bracket" aria-hidden="true">
+            ]
+          </span>
+        </a>
+      ))}
+    </nav>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-block: clamp(2rem, 6vw, 5rem) var(--space-12);
+    text-align: center;
+  }
+
+  .not-found__art {
+    container-type: inline-size;
+    margin-inline: auto;
+    max-width: 68rem;
+    color: var(--color-text);
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 12%,
+      black 88%,
+      transparent
+    );
+  }
+
+  .not-found__art pre {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: min(14px, calc(100cqi / var(--ascii-columns) / 0.65));
+    line-height: 1.35;
+    letter-spacing: 0;
+    white-space: pre;
+  }
+
+  .not-found__message {
+    margin-top: clamp(1rem, 2vw, 4rem);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  p {
+    margin: var(--space-1) 0 0;
+    font-size: clamp(0.875rem, 2vw, 1.25rem);
+    line-height: 1.6;
+  }
+
+  .not-found__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3) var(--space-8);
+    margin-top: var(--space-8);
+    padding-top: var(--space-3);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .not-found__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  .not-found__link-label {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+
+  .not-found__bracket,
+  .not-found__arrow {
+    color: var(--color-text-muted);
+  }
+
+  .not-found__arrow {
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .not-found__links a:hover .not-found__arrow {
+    color: var(--color-text);
+    transform: translateX(3px);
+  }
+
+  .not-found__links a:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 5px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 30rem) {
+    .not-found__links {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>
