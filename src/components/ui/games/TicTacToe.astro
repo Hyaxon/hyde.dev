@@ -1,0 +1,373 @@
+---
+import ItemBox from "../ItemBox.astro";
+import type { Mark } from "../../../lib/games/tic-tac-toe/engine";
+import type { Difficulty } from "../../../lib/games/tic-tac-toe/cpu";
+
+interface Props {
+  title?: string;
+  difficulty?: Difficulty;
+  humanMark?: Mark;
+}
+
+const { title, difficulty = "easy", humanMark = "X" } = Astro.props;
+const difficulties = ["easy", "medium", "hard"] as const;
+// Initial markup only; the browser controller will render game state later.
+const board = ["", "", "", "", "", "", "", "", ""];
+---
+
+<ItemBox title={title}>
+  <div
+    class="tic-tac-toe"
+    data-tic-tac-toe
+    data-difficulty={difficulty}
+    data-human-mark={humanMark}
+  >
+    <div class="game-layout">
+      <div class="game-board" role="group" aria-label="Tic-tac-toe board">
+        {board.map((mark, index) => (
+          <button
+            class="game-square"
+            type="button"
+            data-square={index}
+            aria-label={`Row ${Math.floor(index / 3) + 1}, column ${(index % 3) + 1}: ${mark || "empty"}`}
+          >
+            <span aria-hidden="true">{mark}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="game-sidebar">
+        <div class="game-score" role="group" aria-label="Your score">
+          <span>
+            <span aria-label="Wins">W:</span> <span data-wins>0</span>
+          </span>
+          <span>
+            <span aria-label="Losses">L:</span> <span data-losses>0</span>
+          </span>
+        </div>
+
+        <fieldset class="game-difficulty">
+          <legend>Difficulty</legend>
+
+          <div class="game-difficulty__buttons">
+            {difficulties.map((level) => (
+              <div class="game-difficulty__option">
+                <button
+                  type="button"
+                  data-difficulty-option={level}
+                  aria-pressed={difficulty === level}
+                  aria-describedby={
+                    level === "hard" ? "hard-mode-info" : undefined
+                  }
+                >
+                  {level[0].toUpperCase() + level.slice(1)}
+                </button>
+
+                {level === "hard" && (
+                  <div
+                    id="hard-mode-info"
+                    class="game-difficulty__tooltip"
+                    role="tooltip"
+                  >
+                    Hard mode uses{" "}
+                    <a
+                      href="https://en.wikipedia.org/wiki/Minimax"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      minimax
+                    </a>{" "}
+                    to evaluate possible moves and choose the optimal play.
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </fieldset>
+
+        <p class="game-shape">
+          Your Shape: <span data-human-mark-label>{humanMark}</span>
+        </p>
+        <div class="game-status" role="status" aria-live="polite">
+          <span data-status>Your Turn</span>
+          {/* Reserve the longest message's wrapped height before a round ends. */}
+          <span class="game-status__sizer" aria-hidden="true">
+            You won! Click the board to play again.
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ItemBox>
+
+<script>
+  import { initTicTacToe } from "../../../lib/client/tic-tac-toe";
+
+  document
+    .querySelectorAll<HTMLElement>("[data-tic-tac-toe]")
+    .forEach((root) => initTicTacToe(root));
+</script>
+
+<style>
+  .tic-tac-toe {
+    container-type: inline-size;
+  }
+
+  .game-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 16rem) minmax(8.5rem, 1fr);
+    align-items: stretch;
+    gap: var(--space-6);
+  }
+
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    width: min(100%, 16rem);
+    aspect-ratio: 1;
+    place-self: start;
+  }
+
+  button {
+    border: var(--border-width) solid var(--color-border);
+    border-radius: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: var(--color-panel);
+    border-color: var(--color-text);
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 3px;
+  }
+
+  .game-square {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0;
+    font-size: clamp(2rem, 7cqi, 3rem);
+    line-height: 1;
+  }
+
+  .game-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-width: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .game-score {
+    display: flex;
+    justify-content: flex-start;
+    gap: var(--space-6);
+    width: 100%;
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-width) solid var(--color-border);
+    font-size: 1rem;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+  }
+
+  [data-wins] {
+    color: var(--color-code-string);
+  }
+
+  [data-losses] {
+    color: var(--color-code-deleted);
+  }
+
+  .game-difficulty {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .game-difficulty legend {
+    margin-bottom: var(--space-2);
+    padding: 0;
+    color: var(--color-text-muted);
+  }
+
+  .game-difficulty__buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .game-difficulty__option {
+    position: relative;
+    display: inline-flex;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  /*
+ * Invisible bridge between the Hard button and its tooltip.
+ * This prevents the tooltip from closing while the cursor
+ * crosses the small gap between them.
+ */
+  .game-difficulty__option:has(.game-difficulty__tooltip)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: var(--space-3);
+    height: 100%;
+  }
+
+  .game-difficulty button {
+    min-height: 32px;
+    padding: var(--space-1) var(--space-4);
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .game-difficulty button[aria-pressed="true"] {
+    border-color: var(--color-text);
+    background: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .game-difficulty__tooltip {
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    left: calc(100% + var(--space-3));
+    width: 15rem;
+    padding: var(--space-3);
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-panel);
+    box-shadow: 0 4px 12px #0006;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    text-align: left;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-50%);
+
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      visibility var(--duration-fast) var(--ease-standard);
+  }
+
+  .game-difficulty__tooltip a {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .game-difficulty__tooltip a:hover {
+    color: var(--color-code-function);
+  }
+
+  .game-difficulty__tooltip a:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+
+  /*
+ * Keep the tooltip open when:
+ * - the difficulty option is hovered
+ * - the button has keyboard focus
+ * - the link inside the tooltip has focus
+ */
+  .game-difficulty__option:hover .game-difficulty__tooltip,
+  .game-difficulty__option:focus-within .game-difficulty__tooltip {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .game-shape,
+  .game-status {
+    margin: 0;
+  }
+
+  .game-status {
+    display: grid;
+    align-items: start;
+    align-self: stretch;
+    flex-shrink: 0;
+    min-height: 3em;
+    color: var(--color-code-function);
+  }
+
+  .game-status > span {
+    grid-area: 1 / 1;
+  }
+
+  .game-status__sizer {
+    visibility: hidden;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .game-shape {
+    color: var(--color-text-muted);
+  }
+
+  [data-human-mark-label] {
+    color: var(--color-code-constant);
+  }
+
+  @media (max-width: 48rem) {
+    .game-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-4);
+    }
+
+    .game-sidebar {
+      gap: var(--space-3);
+    }
+
+    .game-difficulty__buttons {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .game-difficulty button {
+      min-height: 44px;
+      padding-inline: var(--space-3);
+    }
+
+    .game-difficulty__option:has(.game-difficulty__tooltip)::after {
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: var(--space-2);
+    }
+
+    .game-difficulty__tooltip {
+      top: calc(100% + var(--space-2));
+      left: 0;
+      transform: none;
+      width: min(15rem, calc(100vw - 3rem));
+    }
+  }
+
+  @media (pointer: coarse) {
+    .game-difficulty button {
+      min-height: 44px;
+    }
+  }
+</style>
