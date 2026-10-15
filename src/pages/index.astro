@@ -11,6 +11,7 @@ import ProjectCard from "../components/ui/ProjectCard.astro";
 import { getHomepageProjects } from "../lib/projects/selectors";
 import HeroAscii from "../components/ui/HeroAscii.astro";
 import EmailWidget from "../components/ui/widgets/EmailWidget.astro";
+import TicTacToe from "../components/ui/games/TicTacToe.astro";
 
 const homepagePosts = (await getPosts()).slice(0, 5);
 
@@ -155,6 +156,9 @@ const homepageProjects = await getHomepageProjects(6);
           </ItemBox>
         </section>
 
+        <section class="tic-tac-toe">
+          <TicTacToe title="Tic-Tac-Toe" difficulty="easy" humanMark="X" />
+        </section>
         {/*
         <section class="ad2">
           <ItemBox>
@@ -291,6 +295,10 @@ const homepageProjects = await getHomepageProjects(6);
     }
 
     .game {
+      order: 10;
+    }
+
+    .tic-tac-toe {
       order: 10;
     }
 
