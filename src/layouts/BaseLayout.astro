@@ -7,12 +7,18 @@ interface Props {
   title?: string;
   description?: string;
   index?: boolean;
+  terminalCommand?: "cat" | "ls" | "exit";
+  terminalValue?: string;
+  searchIndex?: boolean;
 }
 
 const {
   title = "Hyde.dev",
   description = "Personal developer portfolio.",
   index = true,
+  terminalCommand,
+  terminalValue,
+  searchIndex = true,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -36,9 +42,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
   </head>
 
-  <body>
+  <body data-pagefind-ignore={searchIndex ? undefined : "all"}>
     <Topbar />
-    <TerminalPath />
+    <TerminalPath command={terminalCommand} value={terminalValue} />
     <slot />
   </body>
 </html>
