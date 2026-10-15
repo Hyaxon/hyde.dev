@@ -350,18 +350,12 @@ const board = ["", "", "", "", "", "", "", "", ""];
       padding-inline: var(--space-3);
     }
 
-    .game-difficulty__option:has(.game-difficulty__tooltip)::after {
-      top: 100%;
-      left: 0;
-      width: 100%;
-      height: var(--space-2);
+    .game-difficulty__tooltip {
+      display: none;
     }
 
-    .game-difficulty__tooltip {
-      top: calc(100% + var(--space-2));
-      left: 0;
-      transform: none;
-      width: min(15rem, calc(100vw - 3rem));
+    .game-difficulty__option:has(.game-difficulty__tooltip)::after {
+      display: none;
     }
   }
 
