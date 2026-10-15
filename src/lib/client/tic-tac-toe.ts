@@ -64,7 +64,7 @@ export function initTicTacToe(root: HTMLElement): () => void {
         session.state.turn !== session.humanMark)
     )
       return;
-    console.log("[TicTacToe] Square pressed:", square);
+    //console.log("[TicTacToe] Square pressed:", square);
     commitMove(square);
     scheduleCpuTurn();
   }
@@ -102,7 +102,7 @@ export function initTicTacToe(root: HTMLElement): () => void {
   }
 
   function handleDifficultyPress(difficulty: Difficulty): void {
-    console.log("[TicTacToe] Difficulty pressed:", difficulty);
+    //("[TicTacToe] Difficulty pressed:", difficulty);
     if (session.difficulty === difficulty) return;
 
     cancelCpuTurn();
