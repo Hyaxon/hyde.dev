@@ -2,6 +2,8 @@
 title: "Hello, world!"
 description: "The first post."
 publishedAt: 2026-09-21
+updatedAt: 2026-10-14
+blurb: "A brief introduction."
 tags:
   - hello-world
 ---

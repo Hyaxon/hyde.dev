@@ -1,15 +1,31 @@
 ---
+interface Props {
+  command?: "cat" | "ls" | "exit";
+  value?: string;
+}
+
 const pathname = Astro.url.pathname;
 
-const cleanPath = pathname.replace(/^\/|\/$/g, "");
+const cleanPath = pathname.replace(/^\/+|\/+$/g, "");
+const isDirectory = ["projects", "posts", "games"].includes(cleanPath);
 
-const filePath = cleanPath === "" ? "home.hy" : `${cleanPath}.hy`;
+const command = Astro.props.command ?? (isDirectory ? "ls" : "cat");
+const value =
+  Astro.props.value ??
+  (isDirectory
+    ? `${cleanPath}/`
+    : cleanPath === ""
+      ? "home.hy"
+      : `${cleanPath}.hy`);
 ---
 
-<div class="terminal-path shell" aria-label={`Current path: ${filePath}`}>
+<div
+  class="terminal-path shell"
+  aria-label={`Terminal command: ${command} ${value}`}
+>
   <span class="terminal-path__command">&gt;</span>
-  <span class="terminal-path__command"> cat </span>
-  <span class="terminal-path__value">{filePath}</span>
+  <span class="terminal-path__command"> {command} </span>
+  <span class="terminal-path__value">{value}</span>
 </div>
 
 <style>
