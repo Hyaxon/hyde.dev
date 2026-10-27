@@ -48,29 +48,29 @@ export function applyMove(state: GameState, square: number): GameState {
   return nextState;
 }
 
+const winningLines = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+] as const;
+
+export function getWinningSquares(board: readonly Cell[]): number[] {
+  const lines = winningLines.filter(
+    ([a, b, c]) =>
+      board[a] != null && board[a] === board[b] && board[a] === board[c],
+  );
+  return [...new Set(lines.flat())];
+}
+
 export function getOutcome(board: readonly Cell[]): Outcome {
-  for (let i = 0; i <= 6; i += 3) {
-    const mark = board[i];
-
-    if (mark != null && mark == board[i + 1] && mark === board[i + 2]) {
-      return mark;
-    }
-  }
-
-  for (let i = 0; i <= 2; i++) {
-    const mark = board[i];
-
-    if (mark != null && mark == board[i + 3] && mark === board[i + 6]) {
-      return mark;
-    }
-  }
-
-  if (
-    (board[0] != null && board[0] == board[4] && board[0] == board[8]) ||
-    (board[2] != null && board[2] == board[4] && board[2] == board[6])
-  ) {
-    return board[4];
-  }
+  const [winningSquare] = getWinningSquares(board);
+  const winner = winningSquare === undefined ? null : board[winningSquare];
+  if (winner != null) return winner;
 
   return board.every((cell) => cell !== null) ? "draw" : "playing";
 }

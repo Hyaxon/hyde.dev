@@ -1,6 +1,7 @@
 import {
   applyMove,
   createInitialState,
+  getWinningSquares,
   type GameState,
   type Mark,
 } from "../games/tic-tac-toe/engine";
@@ -118,6 +119,7 @@ export function initTicTacToe(root: HTMLElement): () => void {
     const score = session.scores[session.difficulty];
     const finished = state.outcome !== "playing";
     const cpuTurn = state.turn !== humanMark;
+    const winningSquares = getWinningSquares(state.board);
 
     squares.forEach((button) => {
       const square = Number(button.dataset.square);
@@ -125,11 +127,13 @@ export function initTicTacToe(root: HTMLElement): () => void {
       const symbol = button.querySelector("span");
 
       if (symbol) symbol.textContent = mark ?? "";
+      const isWinningSquare = winningSquares.includes(square);
+      button.classList.toggle("is-winning", isWinningSquare);
 
       const position = `Row ${Math.floor(square / 3) + 1}, column ${(square % 3) + 1}`;
       button.setAttribute(
         "aria-label",
-        `${position}: ${mark ?? "empty"}${finished ? ". Play again" : ""}`,
+        `${position}: ${mark ?? "empty"}${isWinningSquare ? ". Winning square" : ""}${finished ? ". Play again" : ""}`,
       );
       // Finished boards stay clickable so the next click can restart the round.
       button.disabled = !finished && (thinking || cpuTurn || mark != null);
