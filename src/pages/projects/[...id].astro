@@ -3,6 +3,7 @@ import { render } from "astro:content";
 import { getProjects } from "../../lib/projects/selectors";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectSidebar from "../../components/ui/ProjectSidebar.astro";
+import ReadmeDiagrams from "../../components/ui/ReadmeDiagrams.astro";
 
 export async function getStaticPaths() {
   return (await getProjects()).map((project) => ({
@@ -48,6 +49,7 @@ const isGitHubProject = project.collection === "githubProjects";
       <a href="/">&lt; Home</a>
     </nav>
   </main>
+  <ReadmeDiagrams />
 </BaseLayout>
 
 <style>
