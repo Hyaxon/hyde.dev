@@ -146,6 +146,21 @@ Run the README rendering regression checks with:
 npm test
 ```
 
+Project pages render fenced `mermaid` blocks as diagrams, including those in
+GitHub READMEs. For example:
+
+````markdown
+```mermaid
+flowchart LR
+    Source[Schedule JSON] --> Ingestion[Java ingestion]
+    Ingestion --> Data[Canonical data and snapshots]
+```
+````
+
+The renderer loads only when a project contains a Mermaid block. Wide diagrams
+scroll horizontally; invalid diagrams or unavailable JavaScript leave the
+original code block readable.
+
 ### Maintaining the static site
 
 - Page and card selectors read build-time collections. Fetch new external content

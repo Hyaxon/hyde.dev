@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSatteriMarkdownProcessor } from "@astrojs/markdown-satteri";
+import { markdownShikiConfig } from "../src/lib/markdown-theme.ts";
 import {
   githubMarkdownPlugins,
   repositoryUrl,
@@ -9,6 +10,33 @@ import {
 const fileURL = new URL(
   "https://github.com/example/project/blob/main/docs/README.md",
 );
+
+test("Mermaid fences retain their language and flowchart source for browser rendering", async () => {
+  const renderer = await createSatteriMarkdownProcessor({
+    ...githubMarkdownPlugins,
+    shikiConfig: markdownShikiConfig,
+  });
+  const source = `flowchart LR
+    Source[Schedule JSON] --> Ingestion[Java ingestion]
+    Ingestion --> Data[Canonical data and snapshots]
+    UI[React frontend] -. API integration pending .-> Backend[Java backend]
+    Data --> Backend
+    Backend -->|HTTP / JSON| Python[Python runner]
+    Data --> Python
+    Python --> Models[Model adapters and algorithms]
+    Models -->|Prediction results| Python
+    Python -->|HTTP / JSON| Backend`;
+  const { code } = await renderer.render(`\`\`\`mermaid\n${source}\n\`\`\``, {
+    fileURL,
+  });
+  assert.match(code, /<pre[^>]*data-language="mermaid"/);
+  const codeContent = code.match(/<code>([\s\S]*?)<\/code>/)?.[1];
+  assert.ok(codeContent);
+  assert.equal(
+    codeContent.replace(/<[^>]*>/g, "").replaceAll("&gt;", ">"),
+    source,
+  );
+});
 
 test("README URLs use the repository branch and README directory", () => {
   assert.equal(

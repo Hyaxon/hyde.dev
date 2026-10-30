@@ -1,0 +1,105 @@
+<script>
+  async function renderDiagrams() {
+    const blocks = document.querySelectorAll<HTMLElement>(
+      '.readme-content pre[data-language="mermaid"], .readme-content pre:has(> code.language-mermaid)',
+    );
+    if (!blocks.length) return;
+
+    // Keep the original code visible until the optional renderer succeeds.
+    const { default: mermaid } = await import("mermaid");
+    await document.fonts.ready;
+    const styles = getComputedStyle(document.documentElement);
+    const token = (name: string) => styles.getPropertyValue(name).trim();
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: "strict",
+      suppressErrorRendering: true,
+      theme: "base",
+      look: "classic",
+      themeVariables: {
+        darkMode: true,
+        useGradient: false,
+        dropShadow: "none",
+        radius: 0,
+        strokeWidth: Number.parseFloat(token("--border-width")),
+        background: token("--color-panel"),
+        primaryColor: token("--color-panel"),
+        primaryTextColor: token("--color-text"),
+        primaryBorderColor: token("--color-border"),
+        nodeBkg: token("--color-panel"),
+        nodeBorder: token("--color-border"),
+        nodeTextColor: token("--color-text"),
+        lineColor: token("--color-border"),
+        textColor: token("--color-text"),
+        secondaryColor: token("--color-bg"),
+        secondaryBorderColor: token("--color-border"),
+        secondaryTextColor: token("--color-text"),
+        tertiaryColor: token("--color-panel"),
+        tertiaryBorderColor: token("--color-border"),
+        tertiaryTextColor: token("--color-text"),
+        edgeLabelBackground: token("--color-panel"),
+        fontFamily: token("--font-mono"),
+        fontSize: "14px",
+        fontWeight: "normal",
+      },
+    });
+
+    for (const [index, block] of blocks.entries()) {
+      const source = block.querySelector("code")?.textContent;
+      if (!source?.trim()) continue;
+      try {
+        const { svg } = await mermaid.render(`readme-diagram-${index}`, source);
+        const diagram = document.createElement("div");
+        diagram.className = "readme-diagram";
+        diagram.tabIndex = 0;
+        diagram.setAttribute("role", "region");
+        diagram.setAttribute(
+          "aria-label",
+          "Mermaid diagram (scroll to explore)",
+        );
+        diagram.innerHTML = svg;
+        // Preserve a readable intrinsic size for wide diagrams on small screens.
+        const graphic = diagram.querySelector("svg");
+        const width = graphic?.viewBox.baseVal.width;
+        if (graphic && width) {
+          graphic.style.width = `${width}px`;
+          graphic.style.maxWidth = "none";
+        }
+        block.replaceWith(diagram);
+      } catch (error) {
+        console.warn(
+          "Unable to render README diagram; keeping its source.",
+          error,
+        );
+      }
+    }
+  }
+
+  void renderDiagrams().catch((error) => {
+    console.warn(
+      "Unable to load README diagrams; keeping their source.",
+      error,
+    );
+  });
+</script>
+
+<style is:global>
+  .readme-diagram {
+    max-width: 100%;
+    overflow-x: auto;
+    margin-block: var(--space-6);
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-panel);
+    scrollbar-color: var(--color-border) var(--color-panel);
+  }
+  .readme-diagram > svg {
+    display: block;
+    height: auto;
+    margin-inline: auto;
+  }
+  .readme-diagram:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 3px;
+  }
+</style>
